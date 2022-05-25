@@ -21,13 +21,74 @@ fn uplink_partial_eq() {
         radio_signal_strength_low: false,
         reference_run_complete: true,
         operating_condition_off: false,
+        user_value: Some(SetValue::FlowTemperature(41.5)),
     };
     let uplink1 = uplink0.clone();
     assert_eq!(uplink0, uplink1);
 }
 
 #[test]
-fn deserialize_00_fport1() {
+fn deserialize_00_fport1_rev_1_1() {
+    let expected_output = Uplink {
+        valve_position: 71,
+        flow_raw_value: 12.5,
+        flow_temperature: 13.5,
+        ambient_raw_value: 15.0,
+        ambient_temperature: 15.0,
+        flow_sensor_error: false,
+        ambient_sensor_error: false,
+        battery_v: 2.34,
+        battery_low: false,
+        battery_high: false,
+        average_current_consumed: 1230,
+        average_current_generated: 210,
+        harvesting: false,
+        motor_error: false,
+        radio_communication_error: true,
+        radio_signal_strength_low: true,
+        reference_run_complete: false,
+        operating_condition_off: false,
+        user_value: Some(SetValue::FlowTemperature(18.5)),
+    };
+
+    assert_eq!(
+        expected_output,
+        Uplink::deserialize(&base64::decode("RxkbPDwGdXsVASU=").unwrap()).unwrap()
+    )
+}
+
+#[test]
+fn deserialize_01_fport1_rev_1_1() {
+    let expected_output = Uplink {
+        valve_position: 58,
+        flow_raw_value: 101.0,
+        flow_temperature: 106.0,
+        ambient_raw_value: 60.75,
+        ambient_temperature: 40.25,
+        flow_sensor_error: false,
+        ambient_sensor_error: false,
+        battery_v: 2.78,
+        battery_low: false,
+        battery_high: true,
+        average_current_consumed: 30,
+        average_current_generated: 2350,
+        harvesting: true,
+        motor_error: true,
+        radio_communication_error: false,
+        radio_signal_strength_low: false,
+        reference_run_complete: true,
+        operating_condition_off: false,
+        user_value: Some(SetValue::ValvePosition(58)),
+    };
+
+    assert_eq!(
+        expected_output,
+        Uplink::deserialize(&base64::decode("OsrU86EhiwPrUDo=").unwrap()).unwrap()
+    )
+}
+
+#[test]
+fn deserialize_02_fport1_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 22,
         flow_raw_value: 49.5,
@@ -47,6 +108,7 @@ fn deserialize_00_fport1() {
         radio_signal_strength_low: true,
         reference_run_complete: true,
         operating_condition_off: false,
+        user_value: None,
     };
 
     assert_eq!(
@@ -56,7 +118,7 @@ fn deserialize_00_fport1() {
 }
 
 #[test]
-fn deserialize_01_fport1() {
+fn deserialize_03_fport1_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 33,
         flow_raw_value: 28.5,
@@ -76,6 +138,7 @@ fn deserialize_01_fport1() {
         radio_signal_strength_low: false,
         reference_run_complete: true,
         operating_condition_off: false,
+        user_value: None,
     };
 
     assert_eq!(
@@ -85,7 +148,7 @@ fn deserialize_01_fport1() {
 }
 
 #[test]
-fn deserialize_02_fport1() {
+fn deserialize_04_fport1_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 19,
         flow_raw_value: 47.5,
@@ -105,10 +168,41 @@ fn deserialize_02_fport1() {
         radio_signal_strength_low: true,
         reference_run_complete: true,
         operating_condition_off: false,
+        user_value: None,
     };
 
     assert_eq!(
         expected_output,
         Uplink::deserialize(&base64::decode("E19lkmkGiQEAUA==").unwrap()).unwrap()
+    );
+}
+
+#[test]
+fn deserialize_fport1_something_afoot() {
+    let expected_output = Uplink {
+        valve_position: 100,
+        flow_raw_value: 0.0,
+        flow_temperature: 3.0,
+        ambient_raw_value: 0.0,
+        ambient_temperature: 0.0,
+        flow_sensor_error: true,
+        ambient_sensor_error: true,
+        battery_v: 2.12,
+        battery_low: true,
+        battery_high: false,
+        average_current_consumed: 480,
+        average_current_generated: 0,
+        harvesting: false,
+        motor_error: true,
+        radio_communication_error: true,
+        radio_signal_strength_low: true,
+        reference_run_complete: false,
+        operating_condition_off: true,
+        user_value: Some(SetValue::ValvePosition(0)),
+    };
+
+    assert_eq!(
+        expected_output,
+        Uplink::deserialize(&[100, 0, 6, 0, 0, 95, 106, 48, 0, 128, 0]).unwrap()
     );
 }

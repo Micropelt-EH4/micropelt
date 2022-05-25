@@ -1,8 +1,10 @@
 use std::io::{Error, ErrorKind, Result};
 
 use super::super::utils::close;
+use super::set_value::SetValue;
 
-const UPLINK_N_BYTES: usize = 10;
+const UPLINK_N_BYTES_REV_1_0: usize = 10;
+const UPLINK_N_BYTES_REV_1_1: usize = 11;
 
 #[derive(Clone, Debug)]
 pub struct Uplink {
@@ -14,6 +16,7 @@ pub struct Uplink {
     average_current_consumed: u16,
     average_current_generated: u16,
     valve_position: u8,
+    user_value: Option<SetValue>,
     radio_communication_error: bool,
     radio_signal_strength_low: bool,
     flow_sensor_error: bool,
@@ -45,17 +48,22 @@ impl PartialEq for Uplink {
             && self.radio_signal_strength_low == other.radio_signal_strength_low
             && self.reference_run_complete == other.reference_run_complete
             && self.operating_condition_off == other.operating_condition_off
+            && self.user_value == other.user_value
     }
 }
 
 impl Uplink {
     pub(crate) fn deserialize(input: &[u8]) -> Result<Self> {
-        if input.len() != UPLINK_N_BYTES {
-            return Err(Error::new(
-                ErrorKind::InvalidData,
-                format!("{:?} is of length {}", input, input.len()),
-            ));
-        }
+        let user_value = match input.len() {
+            UPLINK_N_BYTES_REV_1_0 => None,
+            UPLINK_N_BYTES_REV_1_1 => Some(bin_to_set_value(input[9] & 3, input[10])?),
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    format!("{:?} is of length {}", input, input.len()),
+                ))
+            }
+        };
 
         Ok(Self {
             valve_position: input[0],
@@ -76,6 +84,7 @@ impl Uplink {
             operating_condition_off: bin_to_bool((input[9] >> 7) & 1)?,
             battery_high: bin_to_bool((input[9] >> 6) & 1)?,
             reference_run_complete: bin_to_bool((input[9] >> 4) & 1)?,
+            user_value,
         })
     }
 
@@ -149,6 +158,22 @@ impl Uplink {
 
     pub fn operating_condition_off(&self) -> bool {
         self.operating_condition_off
+    }
+
+    pub fn user_value(&self) -> Option<&SetValue> {
+        self.user_value.as_ref()
+    }
+}
+
+fn bin_to_set_value(mode: u8, value: u8) -> Result<SetValue> {
+    match mode {
+        0 => Ok(SetValue::ValvePosition(value)),
+        1 => Ok(SetValue::FlowTemperature(bin_to_float_point_five(value))),
+        2 => Ok(SetValue::AmbientTemperature(bin_to_float_point_five(value))),
+        _ => Err(Error::new(
+            ErrorKind::InvalidInput,
+            format!("Unexpected set mode: {} (set value {})", mode, value),
+        )),
     }
 }
 

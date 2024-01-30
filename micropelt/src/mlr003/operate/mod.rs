@@ -5,6 +5,6 @@ pub use device_value::{
 mod downlink;
 pub use downlink::{Downlink4, DownlinkF, DownlinkR, Kp};
 mod radio_communication_interval;
-pub use radio_communication_interval::RadioCommunicationInterval;
+pub use radio_communication_interval::{RadioCommunicationIntervalF, RadioCommunicationIntervalR};
 mod uplink;
 pub use uplink::Uplink;

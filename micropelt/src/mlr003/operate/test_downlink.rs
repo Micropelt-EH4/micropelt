@@ -24,7 +24,7 @@ fn serialise_r_01() {
         user_value: SetValue::AmbientTemperature(18.5),
         room_temperature: 17.0,
         safety_value: SetValue::ValvePosition(65),
-        radio_communication_interval: RadioCommunicationInterval::Minutes120,
+        radio_communication_interval: RadioCommunicationIntervalR::Minutes120,
         flow_sensor_offset: 4,
         reference_run: false,
     };
@@ -40,7 +40,7 @@ fn serialise_r_02() {
         user_value: SetValue::FlowTemperature(57.5),
         room_temperature: 0.0,
         safety_value: SetValue::FlowTemperature(58.0),
-        radio_communication_interval: RadioCommunicationInterval::Minutes480,
+        radio_communication_interval: RadioCommunicationIntervalR::Minutes480,
         flow_sensor_offset: 2,
         reference_run: false,
     };
@@ -57,8 +57,7 @@ fn serialise_f_zero() {
     let downlink = DownlinkF {
         user_value: SetValue::ValvePosition(0),
         safety_value: SetValue::AmbientTemperature(0.0),
-        radio_communication_interval: RadioCommunicationInterval::Minutes10,
-        flow_sensor_offset: 0,
+        radio_communication_interval: RadioCommunicationIntervalF::Minutes15,
         k_p: Kp::Kp12,
         reference_run: false,
     };
@@ -73,15 +72,14 @@ fn serialise_f_01() {
     let downlink = DownlinkF {
         user_value: SetValue::FlowTemperature(57.5),
         safety_value: SetValue::FlowTemperature(58.0),
-        radio_communication_interval: RadioCommunicationInterval::Minutes120,
-        flow_sensor_offset: 2,
+        radio_communication_interval: RadioCommunicationIntervalF::Minutes120,
         k_p: Kp::Kp4,
         reference_run: false,
     };
 
     let bytes = downlink.serialise().unwrap().payload;
 
-    assert_eq!(vec![115, 0, 116, 0b00110101, 0b00100000, 0b01000000], bytes);
+    assert_eq!(vec![115, 0, 116, 0b00110101, 0, 0b01000000], bytes);
 }
 
 #[test]
@@ -90,7 +88,7 @@ fn serialise_4_zero() {
         user_value: SetValue::ValvePosition(0),
         room_temperature: 0.0,
         safety_value: SetValue::AmbientTemperature(0.0),
-        radio_communication_interval: RadioCommunicationInterval::Minutes10,
+        radio_communication_interval: RadioCommunicationIntervalR::Minutes10,
     };
 
     let bytes = downlink.serialise().unwrap().payload;
@@ -104,7 +102,7 @@ fn serialise_4_01() {
         user_value: SetValue::AmbientTemperature(2.5),
         room_temperature: 16.75,
         safety_value: SetValue::FlowTemperature(76.5),
-        radio_communication_interval: RadioCommunicationInterval::Minutes120,
+        radio_communication_interval: RadioCommunicationIntervalR::Minutes120,
     };
 
     let bytes = downlink.serialise().unwrap().payload;

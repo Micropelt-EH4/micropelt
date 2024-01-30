@@ -10,3 +10,7 @@ license = "Apache-2.0"
 keywords = ["ecological", "smart", "heating", "LoRa", "LoRaWAN"]
 
 [dependencies]
+micropelt-derive = { path = "../micropelt-derive" }
+
+[dev-dependencies]
+base64 = "0.21"

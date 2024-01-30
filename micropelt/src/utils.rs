@@ -1,5 +1,19 @@
 use std::io::{Error, ErrorKind, Result};
 
+pub fn check_payload_length(payload: &[u8], expected_length: usize) -> Result<()> {
+    if payload.len() == expected_length {
+        Ok(())
+    } else {
+        Err(Error::new(
+            ErrorKind::InvalidData,
+            format!(
+                "Payload length should be {expected_length}, got {payload:?} which is of length {}",
+                payload.len()
+            ),
+        ))
+    }
+}
+
 pub fn check_range(lower: f32, input: f32, upper: f32, resolution: f32) -> Result<()> {
     if input < lower - 0.5 * resolution {
         return Err(Error::new(

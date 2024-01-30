@@ -1,5 +1,5 @@
 use std::fmt;
-use std::io::Result;
+use std::io::{Error, ErrorKind, Result};
 
 use micropelt_derive::PartialClose;
 
@@ -46,6 +46,18 @@ impl SetValue {
         Self::FlowTemperature(DEFAULT_FLOW_TEMPERATURE)
     }
 
+    pub(super) fn from_bin(mode: u8, value: u8) -> Result<Self> {
+        match mode {
+            0 => Ok(Self::ValvePosition(value)),
+            1 => Ok(Self::FlowTemperature(bin_to_float_point_five(value))),
+            2 => Ok(Self::AmbientTemperature(bin_to_float_point_five(value))),
+            _ => Err(Error::new(
+                ErrorKind::InvalidInput,
+                format!("Unexpected set mode: {mode} (set value {value})"),
+            )),
+        }
+    }
+
     pub(super) fn value_to_bin(&self) -> Result<u8> {
         match self {
             SetValue::ValvePosition(value) => Ok(percent_to_bin(*value)?),
@@ -69,6 +81,10 @@ impl SetValue {
             SetValue::ValvePosition(_) => 2,
         }
     }
+}
+
+pub(super) fn bin_to_float_point_five(input: u8) -> f32 {
+    input as f32 * 0.5
 }
 
 fn percent_to_bin(input: u8) -> Result<u8> {

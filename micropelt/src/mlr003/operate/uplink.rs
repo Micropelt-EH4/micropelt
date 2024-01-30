@@ -2,9 +2,11 @@ use std::io::{Error, ErrorKind, Result};
 
 use micropelt_derive::PartialClose;
 
+use super::set_value::{bin_to_float_point_five, SetValue};
 use crate::utils::{bin_to_bool, bin_to_float_point_two_five, bin_to_float_point_zero_two};
 
-const UPLINK_N_BYTES: usize = 10;
+const UPLINK_N_BYTES_REV_1_0: usize = 10;
+const UPLINK_N_BYTES_REV_1_1: usize = 11;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Uplink {
@@ -21,6 +23,7 @@ pub struct Uplink {
     average_current_consumed: u16,
     average_current_generated: u16,
     valve_position: u8,
+    user_value: Option<SetValue>,
     radio_communication_error: bool,
     radio_signal_strength_low: bool,
     flow_sensor_error: bool,
@@ -41,14 +44,19 @@ impl PartialEq for Uplink {
 
 impl Uplink {
     pub(crate) fn deserialise(input: &[u8]) -> Result<Self> {
-        if input.len() != UPLINK_N_BYTES {
-            return Err(
-                Error::new(
-                    ErrorKind::InvalidData,
-                    format!("Payload length should be {UPLINK_N_BYTES}, got {input:?} which is of length {}", input.len()),
-                )
-            );
-        }
+        let user_value = match input.len() {
+            UPLINK_N_BYTES_REV_1_0 => None,
+            UPLINK_N_BYTES_REV_1_1 => Some(SetValue::from_bin(input[9] & 0b111, input[10])?),
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    format!(
+                        "Payload length should be {UPLINK_N_BYTES_REV_1_0} or {UPLINK_N_BYTES_REV_1_1}, \
+                    got {input:?} which is of length {}", input.len()
+                    ),
+                ))
+            }
+        };
 
         Ok(Self {
             valve_position: input[0],
@@ -69,6 +77,7 @@ impl Uplink {
             operating_condition_off: bin_to_bool((input[9] >> 7) & 1)?,
             battery_high: bin_to_bool((input[9] >> 6) & 1)?,
             reference_run_complete: bin_to_bool((input[9] >> 4) & 1)?,
+            user_value,
         })
     }
 
@@ -143,14 +152,14 @@ impl Uplink {
     pub fn operating_condition_off(&self) -> bool {
         self.operating_condition_off
     }
+
+    pub fn user_value(&self) -> Option<&SetValue> {
+        self.user_value.as_ref()
+    }
 }
 
 fn bin_to_ten(input: u8) -> u16 {
     input as u16 * 10
-}
-
-fn bin_to_float_point_five(input: u8) -> f32 {
-    input as f32 * 0.5
 }
 
 #[cfg(test)]

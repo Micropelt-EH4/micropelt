@@ -37,6 +37,7 @@ pub struct Uplink {
     harvesting: bool,
     temperature_drop_detected: bool,
     motor_error: bool,
+    zero_drift: bool,
     reference_run_complete: bool,
     operating_condition_off: bool,
 }
@@ -82,6 +83,7 @@ impl Uplink {
             average_current_generated: bin_to_ten(input[8]),
             operating_condition_off: bin_to_bool((input[9] >> 7) & 1)?,
             battery_high: bin_to_bool((input[9] >> 6) & 1)?,
+            zero_drift: bin_to_bool((input[9] >> 5) & 1)?,
             reference_run_complete: bin_to_bool((input[9] >> 4) & 1)?,
             device_value,
         })
@@ -153,6 +155,10 @@ impl Uplink {
 
     pub fn radio_signal_strength_low(&self) -> bool {
         self.radio_signal_strength_low
+    }
+
+    pub fn zero_drift(&self) -> bool {
+        self.zero_drift
     }
 
     pub fn reference_run_complete(&self) -> bool {

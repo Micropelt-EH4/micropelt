@@ -7,8 +7,8 @@ use crate::utils::bool_to_bin;
 use crate::{lorawan, PortPayload};
 
 use super::super::port::Port;
+use super::device_value::SetValue;
 use super::radio_communication_interval::RadioCommunicationInterval;
-use super::set_value::SetValue;
 
 const DOWNLINK_N_BYTES: usize = 6;
 

@@ -3,4 +3,5 @@ pub enum Port {
     Version = 2,
     Motor = 3,
     DataRate = 4,
+    SlowHarvest = 5,
 }

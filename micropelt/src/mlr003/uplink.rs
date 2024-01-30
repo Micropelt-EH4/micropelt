@@ -3,7 +3,7 @@ use std::io::{Error, ErrorKind, Result};
 use crate::{lorawan, PortPayload};
 
 use super::port::Port;
-use super::{data_rate, motor, operate, version};
+use super::{data_rate, motor, operate, slow_harvest, version};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Uplink {
@@ -11,6 +11,7 @@ pub enum Uplink {
     Version(version::Uplink),
     DataRate(data_rate::Uplink),
     Motor(motor::Uplink),
+    SlowHarvest(slow_harvest::Uplink),
 }
 
 impl lorawan::Uplink for Uplink {
@@ -23,6 +24,10 @@ impl lorawan::Uplink for Uplink {
             Ok(Self::Motor(motor::Uplink::deserialise(&input.payload)?))
         } else if input.port == Port::DataRate as u8 {
             Ok(Self::DataRate(data_rate::Uplink::deserialise(
+                &input.payload,
+            )?))
+        } else if input.port == Port::SlowHarvest as u8 {
+            Ok(Self::SlowHarvest(slow_harvest::Uplink::deserialise(
                 &input.payload,
             )?))
         } else {

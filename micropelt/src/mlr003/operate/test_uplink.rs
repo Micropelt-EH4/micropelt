@@ -2,6 +2,8 @@ use super::*;
 
 use base64::Engine as _;
 
+use super::super::device_value::SetValue;
+
 #[test]
 fn uplink_partial_eq() {
     let uplink0 = Uplink {
@@ -23,7 +25,7 @@ fn uplink_partial_eq() {
         radio_signal_strength_low: false,
         reference_run_complete: true,
         operating_condition_off: false,
-        user_value: Some(SetValue::FlowTemperature(41.5)),
+        device_value: Some(DeviceValue::User(SetValue::FlowTemperature(41.5))),
     };
 
     let uplink1 = uplink0.clone();
@@ -39,7 +41,42 @@ fn uplink_partial_eq() {
 }
 
 #[test]
-fn deserialise_00_rev_1_1() {
+fn deserialise_00_rev_2_0() {
+    let expected_output = Uplink {
+        valve_position: 0,
+        flow_raw_value: 39.0,
+        flow_temperature: 42.0,
+        ambient_raw_value: 22.25,
+        ambient_temperature: 17.25,
+        flow_sensor_error: false,
+        ambient_sensor_error: false,
+        battery_v: 2.4,
+        battery_low: false,
+        battery_high: false,
+        average_current_consumed: 2000,
+        average_current_generated: 0,
+        harvesting: false,
+        motor_error: false,
+        radio_communication_error: false,
+        radio_signal_strength_low: false,
+        reference_run_complete: true,
+        operating_condition_off: false,
+        device_value: Some(DeviceValue::SlowHarvesting(26.0)),
+    };
+
+    assert_eq!(
+        expected_output,
+        Uplink::deserialise(
+            &base64::engine::general_purpose::STANDARD
+                .decode("AE5UWUUAeMgAFGg=")
+                .unwrap()
+        )
+        .unwrap()
+    )
+}
+
+#[test]
+fn deserialise_01_rev_1_1() {
     let expected_output = Uplink {
         valve_position: 71,
         flow_raw_value: 12.5,
@@ -59,7 +96,7 @@ fn deserialise_00_rev_1_1() {
         radio_signal_strength_low: true,
         reference_run_complete: false,
         operating_condition_off: false,
-        user_value: Some(SetValue::FlowTemperature(18.5)),
+        device_value: Some(DeviceValue::User(SetValue::FlowTemperature(18.5))),
     };
 
     assert_eq!(
@@ -74,7 +111,7 @@ fn deserialise_00_rev_1_1() {
 }
 
 #[test]
-fn deserialise_01_rev_1_1() {
+fn deserialise_02_rev_1_1() {
     let expected_output = Uplink {
         valve_position: 58,
         flow_raw_value: 101.0,
@@ -94,7 +131,7 @@ fn deserialise_01_rev_1_1() {
         radio_signal_strength_low: false,
         reference_run_complete: true,
         operating_condition_off: false,
-        user_value: Some(SetValue::ValvePosition(58)),
+        device_value: Some(DeviceValue::User(SetValue::ValvePosition(58))),
     };
 
     assert_eq!(
@@ -109,7 +146,7 @@ fn deserialise_01_rev_1_1() {
 }
 
 #[test]
-fn deserialise_02_rev_1_0() {
+fn deserialise_03_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 22,
         flow_raw_value: 49.5,
@@ -129,7 +166,7 @@ fn deserialise_02_rev_1_0() {
         radio_signal_strength_low: true,
         reference_run_complete: true,
         operating_condition_off: false,
-        user_value: None,
+        device_value: None,
     };
 
     assert_eq!(
@@ -139,7 +176,7 @@ fn deserialise_02_rev_1_0() {
 }
 
 #[test]
-fn deserialise_03_rev_1_0() {
+fn deserialise_04_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 33,
         flow_raw_value: 28.5,
@@ -159,7 +196,7 @@ fn deserialise_03_rev_1_0() {
         radio_signal_strength_low: false,
         reference_run_complete: true,
         operating_condition_off: false,
-        user_value: None,
+        device_value: None,
     };
 
     assert_eq!(
@@ -174,7 +211,7 @@ fn deserialise_03_rev_1_0() {
 }
 
 #[test]
-fn deserialise_04_rev_1_0() {
+fn deserialise_05_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 19,
         flow_raw_value: 47.5,
@@ -194,7 +231,7 @@ fn deserialise_04_rev_1_0() {
         radio_signal_strength_low: true,
         reference_run_complete: true,
         operating_condition_off: false,
-        user_value: None,
+        device_value: None,
     };
 
     assert_eq!(
@@ -229,7 +266,7 @@ fn deserialise_something_afoot() {
         radio_signal_strength_low: true,
         reference_run_complete: false,
         operating_condition_off: true,
-        user_value: Some(SetValue::ValvePosition(0)),
+        device_value: Some(DeviceValue::User(SetValue::ValvePosition(0))),
     };
 
     assert_eq!(

@@ -101,9 +101,9 @@ impl Downlink {
             user_value: SetValue::default_domestic_hot_water(),
             room_temperature: 0.0,
             safety_value: SetValue::default_domestic_hot_water(),
-            radio_communication_interval: RadioCommunicationInterval::Minutes10,
+            radio_communication_interval: RadioCommunicationInterval::Minutes60,
             flow_sensor_offset: 0,
-            p_controller_gain: 3,
+            p_controller_gain: 1,
             reference_run: false,
         }
     }

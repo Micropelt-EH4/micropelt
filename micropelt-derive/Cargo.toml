@@ -1,0 +1,17 @@
+[package]
+name = "micropelt-derive"
+version = "0.1.0"
+edition = "2021"
+description = "derive macros"
+readme = "readme.md"
+homepage = "http://micropelt.com"
+repository = "https://github.com/Micropelt-EH4/micropelt"
+license = "Apache-2.0"
+keywords = ["ecological", "smart", "heating", "LoRa", "LoRaWAN"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0"
+syn = { version = "2.0", features = ["full"] }

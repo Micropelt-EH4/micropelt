@@ -5,7 +5,7 @@ use micropelt_derive::PartialClose;
 
 use crate::utils::check_range;
 
-pub const DEFAULT_AMBIENT_TEMPERATURE: f32 = 20.0;
+pub const DEFAULT_AMBIENT_TEMPERATURE: f32 = 19.0;
 pub const DEFAULT_FLOW_TEMPERATURE: f32 = 55.0;
 
 #[derive(Clone, Debug, PartialClose)]

@@ -1,5 +1,6 @@
 [workspace]
 members = [
-    "micropelt-derive"
+    "micropelt",
+    "micropelt-derive",
 ]
 resolver = "2"

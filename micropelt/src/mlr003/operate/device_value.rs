@@ -3,10 +3,21 @@ use std::io::{Error, ErrorKind, Result};
 
 use micropelt_derive::PartialClose;
 
-use crate::utils::{bin_to_float_point_five, float_point_five_to_bin, percent_to_bin};
+use crate::utils::{
+    bin_to_float_point_five, bin_to_float_point_two_five, float_point_five_to_bin, percent_to_bin,
+};
 
 pub const DEFAULT_AMBIENT_TEMPERATURE: f32 = 19.0;
 pub const DEFAULT_FLOW_TEMPERATURE: f32 = 55.0;
+
+#[derive(Clone, Debug, PartialClose)]
+pub enum DeviceValue {
+    User(SetValue),
+    #[partial_close(resolution = 0.25)]
+    DetectingOpeningPoint(f32),
+    #[partial_close(resolution = 0.25)]
+    SlowHarvesting(f32),
+}
 
 #[derive(Clone, Debug, PartialClose)]
 pub enum SetValue {
@@ -15,6 +26,21 @@ pub enum SetValue {
     FlowTemperature(f32),
     #[partial_close(resolution = 0.5)]
     AmbientTemperature(f32),
+}
+
+impl fmt::Display for DeviceValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::User(x) => x.fmt(f),
+            Self::DetectingOpeningPoint(value) => write!(
+                f,
+                "Detecting Opening Point (maximum flow temperature {value}°C)",
+            ),
+            Self::SlowHarvesting(value) => {
+                write!(f, "Slow Harvesting (maximum flow temperature {value}°C)")
+            }
+        }
+    }
 }
 
 impl fmt::Display for SetValue {
@@ -31,9 +57,37 @@ impl fmt::Display for SetValue {
     }
 }
 
+impl PartialEq for DeviceValue {
+    fn eq(&self, other: &Self) -> bool {
+        self.partial_close(other)
+    }
+}
+
 impl PartialEq for SetValue {
     fn eq(&self, other: &Self) -> bool {
         self.partial_close(other)
+    }
+}
+
+impl DeviceValue {
+    pub(super) fn from_bin(mode: u8, value: u8) -> Result<Self> {
+        match mode {
+            0 => Ok(Self::User(SetValue::ValvePosition(value))),
+            1 => Ok(Self::User(SetValue::FlowTemperature(
+                bin_to_float_point_five(value),
+            ))),
+            2 => Ok(Self::User(SetValue::AmbientTemperature(
+                bin_to_float_point_five(value),
+            ))),
+            3 => Ok(Self::DetectingOpeningPoint(bin_to_float_point_two_five(
+                value,
+            ))),
+            4 => Ok(Self::SlowHarvesting(bin_to_float_point_two_five(value))),
+            _ => Err(Error::new(
+                ErrorKind::InvalidInput,
+                format!("Unexpected set mode: {mode} (set value {value})"),
+            )),
+        }
     }
 }
 
@@ -44,18 +98,6 @@ impl SetValue {
 
     pub fn default_domestic_hot_water() -> Self {
         Self::FlowTemperature(DEFAULT_FLOW_TEMPERATURE)
-    }
-
-    pub(super) fn from_bin(mode: u8, value: u8) -> Result<Self> {
-        match mode {
-            0 => Ok(Self::ValvePosition(value)),
-            1 => Ok(Self::FlowTemperature(bin_to_float_point_five(value))),
-            2 => Ok(Self::AmbientTemperature(bin_to_float_point_five(value))),
-            _ => Err(Error::new(
-                ErrorKind::InvalidInput,
-                format!("Unexpected set mode: {mode} (set value {value})"),
-            )),
-        }
     }
 
     pub(super) fn value_to_bin(&self) -> Result<u8> {
@@ -84,5 +126,5 @@ impl SetValue {
 }
 
 #[cfg(test)]
-#[path = "./test_set_value.rs"]
-mod test_set_value;
+#[path = "./test_device_value.rs"]
+mod test_device_value;

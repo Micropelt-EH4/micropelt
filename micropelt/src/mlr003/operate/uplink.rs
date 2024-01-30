@@ -7,7 +7,7 @@ use crate::utils::{
     bin_to_ten,
 };
 
-use super::set_value::SetValue;
+use super::device_value::DeviceValue;
 
 const UPLINK_N_BYTES_REV_1_0: usize = 10;
 const UPLINK_N_BYTES_REV_1_1: usize = 11;
@@ -27,7 +27,7 @@ pub struct Uplink {
     average_current_consumed: u16,
     average_current_generated: u16,
     valve_position: u8,
-    user_value: Option<SetValue>,
+    device_value: Option<DeviceValue>,
     radio_communication_error: bool,
     radio_signal_strength_low: bool,
     flow_sensor_error: bool,
@@ -48,9 +48,9 @@ impl PartialEq for Uplink {
 
 impl Uplink {
     pub(crate) fn deserialise(input: &[u8]) -> Result<Self> {
-        let user_value = match input.len() {
+        let device_value = match input.len() {
             UPLINK_N_BYTES_REV_1_0 => None,
-            UPLINK_N_BYTES_REV_1_1 => Some(SetValue::from_bin(input[9] & 0b111, input[10])?),
+            UPLINK_N_BYTES_REV_1_1 => Some(DeviceValue::from_bin(input[9] & 0b111, input[10])?),
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidInput,
@@ -81,7 +81,7 @@ impl Uplink {
             operating_condition_off: bin_to_bool((input[9] >> 7) & 1)?,
             battery_high: bin_to_bool((input[9] >> 6) & 1)?,
             reference_run_complete: bin_to_bool((input[9] >> 4) & 1)?,
-            user_value,
+            device_value,
         })
     }
 
@@ -157,8 +157,8 @@ impl Uplink {
         self.operating_condition_off
     }
 
-    pub fn user_value(&self) -> Option<&SetValue> {
-        self.user_value.as_ref()
+    pub fn device_value(&self) -> Option<&DeviceValue> {
+        self.device_value.as_ref()
     }
 }
 

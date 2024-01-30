@@ -1,9 +1,9 @@
 use std::fmt;
-use std::io::Result;
+use std::io::{Error, ErrorKind, Result};
 
 use micropelt_derive::PartialClose;
 
-use crate::utils::{float_point_five_to_bin, percent_to_bin};
+use crate::utils::{bin_to_float_point_five, float_point_five_to_bin, percent_to_bin};
 
 pub const DEFAULT_AMBIENT_TEMPERATURE: f32 = 20.0;
 pub const DEFAULT_FLOW_TEMPERATURE: f32 = 55.0;
@@ -44,6 +44,18 @@ impl SetValue {
 
     pub fn default_domestic_hot_water() -> Self {
         Self::FlowTemperature(DEFAULT_FLOW_TEMPERATURE)
+    }
+
+    pub(super) fn from_bin(mode: u8, value: u8) -> Result<Self> {
+        match mode {
+            0 => Ok(Self::ValvePosition(value)),
+            1 => Ok(Self::FlowTemperature(bin_to_float_point_five(value))),
+            2 => Ok(Self::AmbientTemperature(bin_to_float_point_five(value))),
+            _ => Err(Error::new(
+                ErrorKind::InvalidInput,
+                format!("Unexpected set mode: {mode} (set value {value})"),
+            )),
+        }
     }
 
     pub(super) fn value_to_bin(&self) -> Result<u8> {

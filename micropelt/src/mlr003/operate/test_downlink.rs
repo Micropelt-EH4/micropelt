@@ -9,7 +9,6 @@ fn serialise_r_zero() {
     let downlink = DownlinkR {
         user_value: SetValue::ValvePosition(0),
         safety_value: SetValue::AmbientTemperature(0.0),
-        flow_sensor_offset: 0,
         ..super::DownlinkR::default()
     };
 
@@ -25,11 +24,10 @@ fn serialise_r_01() {
         room_temperature: 17.0,
         safety_value: SetValue::ValvePosition(65),
         radio_communication_interval: RadioCommunicationIntervalR::Minutes120,
-        flow_sensor_offset: 4,
         reference_run: false,
     };
 
-    let expected_output = vec![37, 68, 65, 58, 64, 0];
+    let expected_output = vec![37, 68, 65, 58, 0, 0];
 
     assert_eq!(expected_output, downlink.serialise().unwrap().payload);
 }
@@ -41,7 +39,6 @@ fn serialise_r_02() {
         room_temperature: 0.0,
         safety_value: SetValue::FlowTemperature(58.0),
         radio_communication_interval: RadioCommunicationIntervalR::Minutes480,
-        flow_sensor_offset: 2,
         reference_run: false,
     };
 
@@ -49,7 +46,7 @@ fn serialise_r_02() {
 
     let b64 = base64::engine::general_purpose::STANDARD.encode(bytes);
 
-    assert_eq!("cwB0RSAA", b64);
+    assert_eq!("cwB0RQAA", b64);
 }
 
 #[test]
@@ -113,15 +110,4 @@ fn serialise_4_01() {
 #[test]
 fn test_float_point_two_five_to_bin() {
     assert_eq!(17, float_point_two_five_to_bin(4.25));
-}
-
-#[test]
-fn test_offset_comp_to_bin() {
-    assert_eq!(8, offset_comp_to_bin(-8).unwrap());
-    assert_eq!(12, offset_comp_to_bin(-4).unwrap());
-    assert_eq!(15, offset_comp_to_bin(-1).unwrap());
-    assert_eq!(0, offset_comp_to_bin(0).unwrap());
-    assert_eq!(1, offset_comp_to_bin(1).unwrap());
-    assert_eq!(7, offset_comp_to_bin(7).unwrap());
-    assert!(offset_comp_to_bin(22).is_err());
 }

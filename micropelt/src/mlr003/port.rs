@@ -6,5 +6,7 @@ pub enum Port {
     SlowHarvest = 5,
     TemperatureDrop = 6,
     Pi = 7,
+    TemperatureEstimate = 8,
+    ExternalSensor = 9,
     OnOff = 0x0f,
 }

@@ -3,7 +3,7 @@ use std::io::{Error, ErrorKind, Result};
 use crate::{lorawan, PortPayload};
 
 use super::port::Port;
-use super::{data_rate, motor, operate, slow_harvest, version};
+use super::{data_rate, motor, operate, pi, slow_harvest, temperature_drop, version};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Uplink {
@@ -12,6 +12,8 @@ pub enum Uplink {
     DataRate(data_rate::Uplink),
     Motor(motor::Uplink),
     SlowHarvest(slow_harvest::Uplink),
+    TemperatureDrop(temperature_drop::Uplink),
+    Pi(pi::Uplink),
 }
 
 impl lorawan::Uplink for Uplink {
@@ -30,6 +32,12 @@ impl lorawan::Uplink for Uplink {
             Ok(Self::SlowHarvest(slow_harvest::Uplink::deserialise(
                 &input.payload,
             )?))
+        } else if input.port == Port::TemperatureDrop as u8 {
+            Ok(Self::TemperatureDrop(
+                temperature_drop::Uplink::deserialise(&input.payload)?,
+            ))
+        } else if input.port == Port::Pi as u8 {
+            Ok(Self::Pi(pi::Uplink::deserialise(&input.payload)?))
         } else {
             Err(Error::new(
                 ErrorKind::Unsupported,

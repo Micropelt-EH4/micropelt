@@ -1,8 +1,10 @@
 pub mod data_rate;
 pub mod motor;
 pub mod operate;
+pub mod pi;
 mod port;
 pub mod slow_harvest;
+pub mod temperature_drop;
 mod uplink;
 pub use uplink::Uplink;
 pub mod version;

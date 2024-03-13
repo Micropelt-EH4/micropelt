@@ -15,6 +15,7 @@ pub enum DeviceValue {
     DetectingOpeningPoint(f32),
     #[partial_close(resolution = 0.25)]
     SlowHarvesting(f32),
+    TemperatureDropDetected,
 }
 
 #[derive(Clone, Debug, PartialClose)]
@@ -37,6 +38,7 @@ impl fmt::Display for DeviceValue {
             Self::SlowHarvesting(value) => {
                 write!(f, "Slow Harvesting (maximum flow temperature {value}°C)")
             }
+            Self::TemperatureDropDetected => write!(f, "Temperature Drop Detected"),
         }
     }
 }
@@ -81,6 +83,7 @@ impl DeviceValue {
                 value,
             ))),
             4 => Ok(Self::SlowHarvesting(bin_to_float_point_two_five(value))),
+            5 => Ok(Self::TemperatureDropDetected),
             _ => Err(Error::new(
                 ErrorKind::InvalidInput,
                 format!("Unexpected set mode: {mode} (set value {value})"),

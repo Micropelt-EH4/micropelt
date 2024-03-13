@@ -12,15 +12,24 @@ use super::radio_communication_interval::RadioCommunicationInterval;
 
 const DOWNLINK_N_BYTES: usize = 6;
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct DownlinkF {
+    pub user_value: SetValue,
+    pub safety_value: SetValue,
+    pub radio_communication_interval: RadioCommunicationInterval,
+    pub flow_sensor_offset: i8,
+    pub k_p: Kp,
+    pub reference_run: bool,
+}
+
 #[derive(Clone, Debug, PartialClose)]
-pub struct Downlink {
+pub struct DownlinkR {
     pub user_value: SetValue,
     #[partial_close(resolution = 0.25)]
     pub room_temperature: f32,
     pub safety_value: SetValue,
     pub radio_communication_interval: RadioCommunicationInterval,
     pub flow_sensor_offset: i8,
-    pub p_controller_gain: u8,
     pub reference_run: bool,
 }
 
@@ -33,7 +42,35 @@ pub struct Downlink4 {
     pub radio_communication_interval: RadioCommunicationInterval,
 }
 
-impl fmt::Display for Downlink {
+#[derive(Clone, Debug, PartialEq)]
+pub enum Kp {
+    Kp4,
+    Kp8,
+    Kp12,
+    Kp16,
+}
+
+impl fmt::Display for DownlinkF {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "User Value {}\n\
+        Safety Value {}\n\
+        Radio Communication Interval {}\n\
+        Flow Sensor Offset {}\n\
+        {}\n\
+        Reference Run {}",
+            self.user_value,
+            self.safety_value,
+            self.radio_communication_interval,
+            self.flow_sensor_offset,
+            self.k_p,
+            self.reference_run
+        )
+    }
+}
+
+impl fmt::Display for DownlinkR {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -42,14 +79,12 @@ impl fmt::Display for Downlink {
         Safety Value {}\n\
         Radio Communication Interval {}\n\
         Flow Sensor Offset {}\n\
-        P Controller Gain {}\n\
         Reference Run {}",
             self.user_value,
             self.room_temperature,
             self.safety_value,
             self.radio_communication_interval,
             self.flow_sensor_offset,
-            self.p_controller_gain,
             self.reference_run
         )
     }
@@ -71,7 +106,18 @@ impl fmt::Display for Downlink4 {
     }
 }
 
-impl PartialEq for Downlink {
+impl fmt::Display for Kp {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Kp4 => write!(f, "K P 4"),
+            Self::Kp8 => write!(f, "K P 8"),
+            Self::Kp12 => write!(f, "K P 12"),
+            Self::Kp16 => write!(f, "K P 16"),
+        }
+    }
+}
+
+impl PartialEq for DownlinkR {
     fn eq(&self, other: &Self) -> bool {
         self.partial_close(other)
     }
@@ -83,33 +129,55 @@ impl PartialEq for Downlink4 {
     }
 }
 
-impl Downlink {
-    pub fn default_radiator() -> Self {
+impl Default for DownlinkF {
+    fn default() -> Self {
+        Self {
+            user_value: SetValue::default_domestic_hot_water(),
+            safety_value: SetValue::default_domestic_hot_water(),
+            radio_communication_interval: RadioCommunicationInterval::Minutes60,
+            flow_sensor_offset: 0,
+            k_p: Kp::Kp4,
+            reference_run: false,
+        }
+    }
+}
+
+impl Default for DownlinkR {
+    fn default() -> Self {
         Self {
             user_value: SetValue::default_radiator(),
             room_temperature: 0.0,
             safety_value: SetValue::default_radiator(),
             radio_communication_interval: RadioCommunicationInterval::Minutes10,
             flow_sensor_offset: 0,
-            p_controller_gain: 3,
-            reference_run: false,
-        }
-    }
-
-    pub fn default_domestic_hot_water() -> Self {
-        Self {
-            user_value: SetValue::default_domestic_hot_water(),
-            room_temperature: 0.0,
-            safety_value: SetValue::default_domestic_hot_water(),
-            radio_communication_interval: RadioCommunicationInterval::Minutes60,
-            flow_sensor_offset: 0,
-            p_controller_gain: 1,
             reference_run: false,
         }
     }
 }
 
-impl lorawan::Downlink for Downlink {
+impl lorawan::Downlink for DownlinkF {
+    #[allow(unused_parens)]
+    fn serialise(&self) -> Result<PortPayload> {
+        let mut payload = vec![0; DOWNLINK_N_BYTES];
+
+        payload[0] = self.user_value.value_to_bin()?;
+        payload[1] = 0;
+        payload[2] = self.safety_value.value_to_bin()?;
+        payload[3] = (self.radio_communication_interval.to_bin() << 4);
+        payload[3] |= (self.user_value.user_mode_to_bin() << 2);
+        payload[3] |= self.safety_value.safety_mode_to_bin();
+        payload[4] = (offset_comp_to_bin(self.flow_sensor_offset)? << 4);
+        payload[5] = (self.k_p.to_bin() << 5);
+        payload[5] |= (bool_to_bin(self.reference_run) << 7);
+
+        Ok(PortPayload {
+            port: Port::Operate as u8,
+            payload,
+        })
+    }
+}
+
+impl lorawan::Downlink for DownlinkR {
     #[allow(unused_parens)]
     fn serialise(&self) -> Result<PortPayload> {
         let mut payload = vec![0; DOWNLINK_N_BYTES];
@@ -121,8 +189,7 @@ impl lorawan::Downlink for Downlink {
         payload[3] |= (self.user_value.user_mode_to_bin() << 2);
         payload[3] |= self.safety_value.safety_mode_to_bin();
         payload[4] = (offset_comp_to_bin(self.flow_sensor_offset)? << 4);
-        payload[5] = (p_controller_gain_to_bin(self.p_controller_gain)? << 5);
-        payload[5] |= (bool_to_bin(self.reference_run) << 7);
+        payload[5] = (bool_to_bin(self.reference_run) << 7);
 
         Ok(PortPayload {
             port: Port::Operate as u8,
@@ -183,21 +250,15 @@ fn offset_comp_to_bin(input: i8) -> Result<u8> {
     Ok(output)
 }
 
-fn p_controller_gain_to_bin(input: u8) -> Result<u8> {
-    let output = match input {
-        1 => 2,
-        2 => 3,
-        3 => 0,
-        4 => 1,
-        _ => {
-            return Err(Error::new(
-                ErrorKind::InvalidInput,
-                format!("Unexpected proportional controller gain: {input}"),
-            ))
+impl Kp {
+    fn to_bin(&self) -> u8 {
+        match self {
+            Self::Kp4 => 2,
+            Self::Kp8 => 3,
+            Self::Kp12 => 0,
+            Self::Kp16 => 1,
         }
-    };
-
-    Ok(output)
+    }
 }
 
 #[cfg(test)]

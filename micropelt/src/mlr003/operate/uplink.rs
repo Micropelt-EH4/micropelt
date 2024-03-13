@@ -35,6 +35,7 @@ pub struct Uplink {
     battery_low: bool,
     battery_high: bool,
     harvesting: bool,
+    temperature_drop_detected: bool,
     motor_error: bool,
     reference_run_complete: bool,
     operating_condition_off: bool,
@@ -68,6 +69,7 @@ impl Uplink {
             flow_temperature: bin_to_float_point_five(input[2]),
             ambient_raw_value: bin_to_float_point_two_five(input[3]),
             ambient_temperature: bin_to_float_point_two_five(input[4]),
+            temperature_drop_detected: bin_to_bool((input[5] >> 7) & 1)?,
             battery_low: bin_to_bool((input[5] >> 6) & 1)?,
             harvesting: bin_to_bool((input[5] >> 5) & 1)?,
             ambient_sensor_error: bin_to_bool((input[5] >> 4) & 1)?,
@@ -135,6 +137,10 @@ impl Uplink {
 
     pub fn harvesting(&self) -> bool {
         self.harvesting
+    }
+
+    pub fn temperature_drop_detected(&self) -> bool {
+        self.temperature_drop_detected
     }
 
     pub fn motor_error(&self) -> bool {

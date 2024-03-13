@@ -40,13 +40,21 @@ fn partial_equal() {
 }
 
 #[test]
-fn test_set_value_to_bin() {
+fn to_bin() {
     assert_eq!(19, SetValue::ValvePosition(19).value_to_bin().unwrap());
     assert_eq!(98, SetValue::FlowTemperature(49.0).value_to_bin().unwrap());
     assert_eq!(
         39,
         SetValue::AmbientTemperature(19.5).value_to_bin().unwrap()
     );
+}
+
+#[test]
+fn out_of_range() {
+    assert!(SetValue::ValvePosition(101).value_to_bin().is_err());
+    assert!(SetValue::FlowTemperature(100.0).value_to_bin().is_err());
+    assert!(SetValue::AmbientTemperature(67.5).value_to_bin().is_err());
+    assert!(SetValue::AmbientTemperature(-12.0).value_to_bin().is_err());
 }
 
 #[test]

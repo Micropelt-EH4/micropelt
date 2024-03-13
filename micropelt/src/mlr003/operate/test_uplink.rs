@@ -20,6 +20,7 @@ fn uplink_partial_eq() {
         average_current_consumed: 220,
         average_current_generated: 2120,
         harvesting: true,
+        temperature_drop_detected: false,
         motor_error: false,
         radio_communication_error: false,
         radio_signal_strength_low: false,
@@ -41,7 +42,41 @@ fn uplink_partial_eq() {
 }
 
 #[test]
-fn deserialise_00_rev_2_0() {
+fn deserialise_00_rev_2_4() {
+    let expected_output = Uplink {
+        valve_position: 0,
+        flow_raw_value: 35.5,
+        flow_temperature: 41.0,
+        ambient_raw_value: 13.75,
+        ambient_temperature: 15.25,
+        flow_sensor_error: false,
+        ambient_sensor_error: false,
+        battery_v: 2.74,
+        battery_low: false,
+        battery_high: true,
+        average_current_consumed: 420,
+        average_current_generated: 1010,
+        harvesting: true,
+        temperature_drop_detected: true,
+        motor_error: false,
+        radio_communication_error: false,
+        radio_signal_strength_low: false,
+        reference_run_complete: true,
+        operating_condition_off: false,
+        device_value: Some(DeviceValue::TemperatureDropDetected),
+    };
+
+    assert_eq!(
+        expected_output,
+        Uplink::deserialise(&vec![
+            0, 71, 82, 55, 61, 0b10100000, 137, 42, 101, 0b01010101, 76
+        ])
+        .unwrap()
+    );
+}
+
+#[test]
+fn deserialise_01_rev_2_0() {
     let expected_output = Uplink {
         valve_position: 0,
         flow_raw_value: 39.0,
@@ -56,6 +91,7 @@ fn deserialise_00_rev_2_0() {
         average_current_consumed: 2000,
         average_current_generated: 0,
         harvesting: false,
+        temperature_drop_detected: false,
         motor_error: false,
         radio_communication_error: false,
         radio_signal_strength_low: false,
@@ -76,7 +112,7 @@ fn deserialise_00_rev_2_0() {
 }
 
 #[test]
-fn deserialise_01_rev_1_1() {
+fn deserialise_02_rev_1_1() {
     let expected_output = Uplink {
         valve_position: 71,
         flow_raw_value: 12.5,
@@ -91,6 +127,7 @@ fn deserialise_01_rev_1_1() {
         average_current_consumed: 1230,
         average_current_generated: 210,
         harvesting: false,
+        temperature_drop_detected: false,
         motor_error: false,
         radio_communication_error: true,
         radio_signal_strength_low: true,
@@ -111,7 +148,7 @@ fn deserialise_01_rev_1_1() {
 }
 
 #[test]
-fn deserialise_02_rev_1_1() {
+fn deserialise_03_rev_1_1() {
     let expected_output = Uplink {
         valve_position: 58,
         flow_raw_value: 101.0,
@@ -126,6 +163,7 @@ fn deserialise_02_rev_1_1() {
         average_current_consumed: 30,
         average_current_generated: 2350,
         harvesting: true,
+        temperature_drop_detected: false,
         motor_error: true,
         radio_communication_error: false,
         radio_signal_strength_low: false,
@@ -146,7 +184,7 @@ fn deserialise_02_rev_1_1() {
 }
 
 #[test]
-fn deserialise_03_rev_1_0() {
+fn deserialise_04_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 22,
         flow_raw_value: 49.5,
@@ -161,6 +199,7 @@ fn deserialise_03_rev_1_0() {
         average_current_consumed: 330,
         average_current_generated: 1820,
         harvesting: true,
+        temperature_drop_detected: false,
         motor_error: false,
         radio_communication_error: true,
         radio_signal_strength_low: true,
@@ -176,7 +215,7 @@ fn deserialise_03_rev_1_0() {
 }
 
 #[test]
-fn deserialise_04_rev_1_0() {
+fn deserialise_05_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 33,
         flow_raw_value: 28.5,
@@ -191,6 +230,7 @@ fn deserialise_04_rev_1_0() {
         average_current_consumed: 2550,
         average_current_generated: 0,
         harvesting: false,
+        temperature_drop_detected: false,
         motor_error: false,
         radio_communication_error: false,
         radio_signal_strength_low: false,
@@ -211,7 +251,7 @@ fn deserialise_04_rev_1_0() {
 }
 
 #[test]
-fn deserialise_05_rev_1_0() {
+fn deserialise_06_rev_1_0() {
     let expected_output = Uplink {
         valve_position: 19,
         flow_raw_value: 47.5,
@@ -226,6 +266,7 @@ fn deserialise_05_rev_1_0() {
         average_current_consumed: 10,
         average_current_generated: 0,
         harvesting: false,
+        temperature_drop_detected: false,
         motor_error: false,
         radio_communication_error: true,
         radio_signal_strength_low: true,
@@ -261,6 +302,7 @@ fn deserialise_something_afoot() {
         average_current_consumed: 480,
         average_current_generated: 0,
         harvesting: false,
+        temperature_drop_detected: false,
         motor_error: true,
         radio_communication_error: true,
         radio_signal_strength_low: true,

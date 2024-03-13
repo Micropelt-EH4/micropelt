@@ -43,6 +43,10 @@ pub fn bin_to_float_point_two_five(input: u8) -> f32 {
     input as f32 * 0.25
 }
 
+pub fn bin_to_float_point_one(input: u8) -> f32 {
+    input as f32 * 0.1
+}
+
 pub fn bin_to_float_point_zero_two(input: u8) -> f32 {
     input as f32 * 0.02
 }
@@ -75,4 +79,16 @@ pub fn float_point_five_to_bin(input: f32, upper: f32) -> Result<u8> {
     check_range(0.0, input, upper, 0.5)?;
 
     Ok((input * 2.0) as u8)
+}
+
+pub fn float_point_one_to_bin(input: f32) -> Result<u8> {
+    check_range(0.0, input, 25.5, 0.1)?;
+
+    Ok((input * 10.0) as u8)
+}
+
+pub fn float_point_zero_two_to_bin(input: f32) -> Result<u8> {
+    check_range(0.0, input, 5.1, 0.02)?;
+
+    Ok((input * 50.0) as u8)
 }

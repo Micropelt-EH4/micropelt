@@ -5,12 +5,12 @@ use base64::Engine as _;
 use crate::lorawan::Downlink as _;
 
 #[test]
-fn serialise_zero() {
-    let downlink = Downlink {
+fn serialise_r_zero() {
+    let downlink = DownlinkR {
         user_value: SetValue::ValvePosition(0),
         safety_value: SetValue::AmbientTemperature(0.0),
         flow_sensor_offset: 0,
-        ..super::Downlink::default_radiator()
+        ..super::DownlinkR::default()
     };
 
     let bytes = downlink.serialise().unwrap().payload;
@@ -19,31 +19,29 @@ fn serialise_zero() {
 }
 
 #[test]
-fn serialise_01() {
-    let downlink = Downlink {
+fn serialise_r_01() {
+    let downlink = DownlinkR {
         user_value: SetValue::AmbientTemperature(18.5),
         room_temperature: 17.0,
         safety_value: SetValue::ValvePosition(65),
         radio_communication_interval: RadioCommunicationInterval::Minutes120,
         flow_sensor_offset: 4,
-        p_controller_gain: 2,
         reference_run: false,
     };
 
-    let expected_output = vec![37, 68, 65, 58, 64, 96];
+    let expected_output = vec![37, 68, 65, 58, 64, 0];
 
     assert_eq!(expected_output, downlink.serialise().unwrap().payload);
 }
 
 #[test]
-fn serialise_02() {
-    let downlink = Downlink {
+fn serialise_r_02() {
+    let downlink = DownlinkR {
         user_value: SetValue::FlowTemperature(57.5),
         room_temperature: 0.0,
         safety_value: SetValue::FlowTemperature(58.0),
         radio_communication_interval: RadioCommunicationInterval::Minutes480,
         flow_sensor_offset: 2,
-        p_controller_gain: 1,
         reference_run: false,
     };
 
@@ -51,7 +49,39 @@ fn serialise_02() {
 
     let b64 = base64::engine::general_purpose::STANDARD.encode(bytes);
 
-    assert_eq!("cwB0RSBA", b64);
+    assert_eq!("cwB0RSAA", b64);
+}
+
+#[test]
+fn serialise_f_zero() {
+    let downlink = DownlinkF {
+        user_value: SetValue::ValvePosition(0),
+        safety_value: SetValue::AmbientTemperature(0.0),
+        radio_communication_interval: RadioCommunicationInterval::Minutes10,
+        flow_sensor_offset: 0,
+        k_p: Kp::Kp12,
+        reference_run: false,
+    };
+
+    let bytes = downlink.serialise().unwrap().payload;
+
+    assert_eq!(vec![0; 6], bytes);
+}
+
+#[test]
+fn serialise_f_01() {
+    let downlink = DownlinkF {
+        user_value: SetValue::FlowTemperature(57.5),
+        safety_value: SetValue::FlowTemperature(58.0),
+        radio_communication_interval: RadioCommunicationInterval::Minutes120,
+        flow_sensor_offset: 2,
+        k_p: Kp::Kp4,
+        reference_run: false,
+    };
+
+    let bytes = downlink.serialise().unwrap().payload;
+
+    assert_eq!(vec![115, 0, 116, 0b00110101, 0b00100000, 0b01000000], bytes);
 }
 
 #[test]

@@ -13,6 +13,8 @@ pub const DEFAULT_FLOW_TEMPERATURE: f32 = 55.0;
 #[derive(Clone, Debug, PartialClose)]
 pub enum DeviceValue {
     User(SetValue),
+    FreezeProtect(u8),
+    ForcedHeating(u8),
     #[partial_close(resolution = 0.25)]
     DetectingOpeningPoint(f32),
     #[partial_close(resolution = 0.25)]
@@ -33,6 +35,10 @@ impl fmt::Display for DeviceValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::User(x) => x.fmt(f),
+            Self::FreezeProtect(value) => {
+                write!(f, "Freeze Protecting (Device opened to {value}%)")
+            }
+            Self::ForcedHeating(value) => write!(f, "Forced Heating (Device opened to {value}%)"),
             Self::DetectingOpeningPoint(value) => write!(
                 f,
                 "Detecting Opening Point (maximum flow temperature {value}°C)",
@@ -86,6 +92,8 @@ impl DeviceValue {
             ))),
             4 => Ok(Self::SlowHarvesting(bin_to_float_point_two_five(value))),
             5 => Ok(Self::TemperatureDropDetected),
+            6 => Ok(Self::FreezeProtect(value)),
+            7 => Ok(Self::ForcedHeating(value)),
             _ => Err(Error::new(
                 ErrorKind::InvalidInput,
                 format!("Unexpected set mode: {mode} (set value {value})"),

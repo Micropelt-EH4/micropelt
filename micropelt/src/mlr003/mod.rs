@@ -1,4 +1,5 @@
 pub mod data_rate;
+pub mod external_sensor;
 pub mod motor;
 pub mod on_off;
 pub mod operate;
@@ -6,6 +7,7 @@ pub mod pi;
 mod port;
 pub mod slow_harvest;
 pub mod temperature_drop;
+pub mod temperature_estimate;
 mod uplink;
 pub use uplink::Uplink;
 pub mod version;

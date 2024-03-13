@@ -3,7 +3,10 @@ use std::io::{Error, ErrorKind, Result};
 use crate::{lorawan, PortPayload};
 
 use super::port::Port;
-use super::{data_rate, motor, on_off, operate, pi, slow_harvest, temperature_drop, version};
+use super::{
+    data_rate, external_sensor, motor, on_off, operate, pi, slow_harvest, temperature_drop,
+    temperature_estimate, version,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Uplink {
@@ -14,6 +17,8 @@ pub enum Uplink {
     SlowHarvest(slow_harvest::Uplink),
     TemperatureDrop(temperature_drop::Uplink),
     Pi(pi::Uplink),
+    TemperatureEstimate(temperature_estimate::Uplink),
+    ExternalSensor(external_sensor::Uplink),
     OnOff(on_off::Uplink),
 }
 
@@ -39,6 +44,14 @@ impl lorawan::Uplink for Uplink {
             ))
         } else if input.port == Port::Pi as u8 {
             Ok(Self::Pi(pi::Uplink::deserialise(&input.payload)?))
+        } else if input.port == Port::TemperatureEstimate as u8 {
+            Ok(Self::TemperatureEstimate(
+                temperature_estimate::Uplink::deserialise(&input.payload)?,
+            ))
+        } else if input.port == Port::ExternalSensor as u8 {
+            Ok(Self::ExternalSensor(external_sensor::Uplink::deserialise(
+                &input.payload,
+            )?))
         } else if input.port == Port::OnOff as u8 {
             Ok(Self::OnOff(on_off::Uplink::deserialise(&input.payload)?))
         } else {

@@ -51,6 +51,10 @@ pub fn bin_to_float_point_zero_two(input: u8) -> f32 {
     input as f32 * 0.02
 }
 
+pub fn bin_to_float_point_zero_one(input: u8) -> f32 {
+    (input as f32) * 0.01
+}
+
 pub fn bin_to_bool(input: u8) -> Result<bool> {
     match input {
         0 => Ok(false),
@@ -81,6 +85,10 @@ pub fn float_point_five_to_bin(input: f32, upper: f32) -> Result<u8> {
     Ok((input * 2.0) as u8)
 }
 
+pub fn float_point_two_five_to_bin(input: f32) -> u8 {
+    (input * 4.0) as u8
+}
+
 pub fn float_point_one_to_bin(input: f32) -> Result<u8> {
     check_range(0.0, input, 25.5, 0.1)?;
 
@@ -91,4 +99,10 @@ pub fn float_point_zero_two_to_bin(input: f32) -> Result<u8> {
     check_range(0.0, input, 5.1, 0.02)?;
 
     Ok((input * 50.0) as u8)
+}
+
+pub fn float_point_zero_one_to_bin(input: f32) -> Result<u8> {
+    check_range(0.0, input, 2.55, 0.01)?;
+
+    Ok((input * 100.0) as u8)
 }

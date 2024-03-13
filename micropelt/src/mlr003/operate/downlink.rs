@@ -1,9 +1,9 @@
 use std::fmt;
-use std::io::{Error, ErrorKind, Result};
+use std::io::Result;
 
 use micropelt_derive::PartialClose;
 
-use crate::utils::bool_to_bin;
+use crate::utils::{bool_to_bin, float_point_two_five_to_bin};
 use crate::{lorawan, PortPayload};
 
 use super::super::port::Port;
@@ -30,7 +30,6 @@ pub struct DownlinkR {
     pub room_temperature: f32,
     pub safety_value: SetValue,
     pub radio_communication_interval: RadioCommunicationIntervalR,
-    pub flow_sensor_offset: i8,
     pub reference_run: bool,
 }
 
@@ -77,13 +76,11 @@ impl fmt::Display for DownlinkR {
         Room Temperature {}°C\n\
         Safety Value {}\n\
         Radio Communication Interval {}\n\
-        Flow Sensor Offset {}\n\
         Reference Run {}",
             self.user_value,
             self.room_temperature,
             self.safety_value,
             self.radio_communication_interval,
-            self.flow_sensor_offset,
             self.reference_run
         )
     }
@@ -147,7 +144,6 @@ impl Default for DownlinkR {
             room_temperature: 0.0,
             safety_value: SetValue::default_radiator(),
             radio_communication_interval: RadioCommunicationIntervalR::Minutes10,
-            flow_sensor_offset: 0,
             reference_run: false,
         }
     }
@@ -186,7 +182,7 @@ impl lorawan::Downlink for DownlinkR {
         payload[3] = (self.radio_communication_interval.to_bin() << 4);
         payload[3] |= (self.user_value.user_mode_to_bin() << 2);
         payload[3] |= self.safety_value.safety_mode_to_bin();
-        payload[4] = (offset_comp_to_bin(self.flow_sensor_offset)? << 4);
+        payload[4] = 0;
         payload[5] = (bool_to_bin(self.reference_run) << 7);
 
         Ok(PortPayload {
@@ -213,39 +209,6 @@ impl lorawan::Downlink for Downlink4 {
             payload,
         })
     }
-}
-
-fn float_point_two_five_to_bin(input: f32) -> u8 {
-    (input * 4.0) as u8
-}
-
-fn offset_comp_to_bin(input: i8) -> Result<u8> {
-    let output = match input {
-        -8 => 8,
-        -7 => 9,
-        -6 => 10,
-        -5 => 11,
-        -4 => 12,
-        -3 => 13,
-        -2 => 14,
-        -1 => 15,
-        0 => 0,
-        1 => 1,
-        2 => 2,
-        3 => 3,
-        4 => 4,
-        5 => 5,
-        6 => 6,
-        7 => 7,
-        _ => {
-            return Err(Error::new(
-                ErrorKind::InvalidInput,
-                format!("Unexpected offset: {input}"),
-            ))
-        }
-    };
-
-    Ok(output)
 }
 
 impl Kp {

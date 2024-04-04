@@ -11,66 +11,24 @@ fn serialise_status() {
 }
 
 #[test]
-fn serialise_add_minus_7_mul_1p1_power_1p3() {
-    let downlink = Downlink {
-        flow_add: -7.0,
-        flow_multiply: 1.1,
-        n_delay_flow: 0,
-        n_moving_average_flow: 1,
-        n_moving_average_ambient: 1,
-        n_moving_average_all: 1,
-        ratio_offset: 0.0,
-        power: 1.3,
-    };
+fn serialise_offset_minus_7() {
+    let downlink = Downlink { flow_offset: -7.0 };
 
-    assert_eq!(
-        vec![228, 110, 0, 1, 1, 1, 0, 130],
-        downlink.serialise().unwrap().payload
-    );
+    assert_eq!(vec![228], downlink.serialise().unwrap().payload);
 }
 
 #[test]
-fn serialise_super_smooth() {
-    let downlink = Downlink {
-        flow_add: 0.0,
-        flow_multiply: 1.0,
-        n_delay_flow: 0,
-        n_moving_average_flow: 12,
-        n_moving_average_ambient: 2,
-        n_moving_average_all: 6,
-        ratio_offset: 0.0,
-        power: 1.3,
-    };
+fn serialise_offset_zero() {
+    let downlink = Downlink { flow_offset: 0.0 };
 
-    assert_eq!(
-        vec![0, 100, 0, 12, 2, 6, 0, 130],
-        downlink.serialise().unwrap().payload
-    );
+    assert_eq!(vec![0], downlink.serialise().unwrap().payload);
 }
 
 #[test]
 fn tx_rx() {
-    let downlink = Downlink {
-        flow_add: 0.25,
-        flow_multiply: 1.01,
-        n_delay_flow: 1,
-        n_moving_average_flow: 2,
-        n_moving_average_ambient: 3,
-        n_moving_average_all: 4,
-        ratio_offset: 0.01,
-        power: 0.02,
-    };
+    let downlink = Downlink { flow_offset: 0.25 };
 
-    let uplink = Uplink {
-        flow_add: 0.25,
-        flow_multiply: 1.01,
-        n_delay_flow: 1,
-        n_moving_average_flow: 2,
-        n_moving_average_ambient: 3,
-        n_moving_average_all: 4,
-        ratio_offset: 0.01,
-        power: 0.02,
-    };
+    let uplink = Uplink { flow_offset: 0.25 };
 
     assert_eq!(
         uplink,

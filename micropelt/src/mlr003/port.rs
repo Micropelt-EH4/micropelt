@@ -9,4 +9,5 @@ pub enum Port {
     TemperatureEstimate = 8,
     ExternalSensor = 9,
     OnOff = 0x0f,
+    MotorConfig = 16,
 }

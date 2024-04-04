@@ -1,6 +1,7 @@
 pub mod data_rate;
 pub mod external_sensor;
 pub mod motor;
+pub mod motor_config;
 pub mod on_off;
 pub mod operate;
 pub mod pi;

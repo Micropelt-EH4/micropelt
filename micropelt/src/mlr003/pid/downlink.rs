@@ -3,14 +3,16 @@ use std::io::Result;
 
 use micropelt_derive::PartialClose;
 
-use crate::utils::{float_point_one_to_bin, float_point_zero_two_to_bin};
+use crate::utils::{
+    float_point_one_to_bin, float_point_two_to_bin, float_point_zero_two_to_bin, percent_to_bin,
+};
 use crate::{lorawan, PortPayload};
 
 use super::super::port::Port;
 
 use super::IntegralUnwind;
 
-const DOWNLINK_N_BYTES: usize = 4;
+const DOWNLINK_N_BYTES: usize = 6;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Downlink {
@@ -18,7 +20,12 @@ pub struct Downlink {
     pub k_p: f32,
     #[partial_close(resolution = 0.02)]
     pub k_i: f32,
+    #[partial_close(resolution = 0.2)]
+    pub k_d: f32,
     pub integral_unwind: IntegralUnwind,
+    pub closed_percent: u8,
+    #[partial_close(resolution = 0.2)]
+    pub k_d_when_closed: f32,
 }
 
 impl fmt::Display for Downlink {
@@ -27,8 +34,16 @@ impl fmt::Display for Downlink {
             f,
             "K P {:.1}\n\
         K I {:.2}\n\
-        Integral Unwind: {}",
-            self.k_p, self.k_i, self.integral_unwind
+        K D {:.1}\n\
+        Integral Unwind: {}\n\
+        Close to {}%\n\
+        When Closed, K D {:.1}",
+            self.k_p,
+            self.k_i,
+            self.k_d,
+            self.integral_unwind,
+            self.closed_percent,
+            self.k_d_when_closed
         )
     }
 }
@@ -42,9 +57,12 @@ impl PartialEq for Downlink {
 impl Downlink {
     pub fn default_radiator() -> Self {
         Self {
-            k_p: 3.6,
-            k_i: 0.4,
+            k_p: 2.4,
+            k_i: 0.06,
+            k_d: 22.2,
             integral_unwind: IntegralUnwind::Zero,
+            closed_percent: 0,
+            k_d_when_closed: 0.0,
         }
     }
 
@@ -52,7 +70,10 @@ impl Downlink {
         Self {
             k_p: 4.0,
             k_i: 0.0,
+            k_d: 0.0,
             integral_unwind: IntegralUnwind::Zero,
+            closed_percent: 0,
+            k_d_when_closed: 0.0,
         }
     }
 }
@@ -63,16 +84,19 @@ impl lorawan::Downlink for Downlink {
 
         payload[0] = float_point_one_to_bin(self.k_p)?;
         payload[1] = float_point_zero_two_to_bin(self.k_i)?;
+        payload[2] = float_point_two_to_bin(self.k_d)?;
         payload[3] = self.integral_unwind.to_bin();
+        payload[4] = percent_to_bin(self.closed_percent)?;
+        payload[5] = float_point_two_to_bin(self.k_d_when_closed)?;
 
         Ok(PortPayload {
-            port: Port::Pi as u8,
+            port: Port::Pid as u8,
             payload,
         })
     }
 }
 
-DownlinkStatus! {Pi, "PI Coefficients"}
+DownlinkStatus! {Pid, "PID Coefficients"}
 
 #[cfg(test)]
 #[path = "./test_downlink.rs"]

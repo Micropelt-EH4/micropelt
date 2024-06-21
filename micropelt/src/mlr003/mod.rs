@@ -1,10 +1,12 @@
+pub mod beep;
 pub mod data_rate;
 pub mod external_sensor;
+pub mod external_temperature;
 pub mod motor;
 pub mod motor_config;
 pub mod on_off;
 pub mod operate;
-pub mod pi;
+pub mod pid;
 mod port;
 pub mod slow_harvest;
 pub mod temperature_drop;

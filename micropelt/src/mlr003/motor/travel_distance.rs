@@ -3,6 +3,10 @@ use std::io::{Error, ErrorKind, Result};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum TravelDistance {
+    Um0624,
+    Um0832,
+    Um1040,
+    Um1248,
     Um1456,
     Um1664,
     Um1872,
@@ -15,6 +19,10 @@ pub enum TravelDistance {
 impl fmt::Display for TravelDistance {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Self::Um0624 => write!(f, "0.624mm"),
+            Self::Um0832 => write!(f, "0.832mm"),
+            Self::Um1040 => write!(f, "1.040mm"),
+            Self::Um1248 => write!(f, "1.248mm"),
             Self::Um1456 => write!(f, "1.456mm"),
             Self::Um1664 => write!(f, "1.664mm"),
             Self::Um1872 => write!(f, "1.872mm"),
@@ -29,6 +37,10 @@ impl fmt::Display for TravelDistance {
 impl TravelDistance {
     pub(super) fn to_bin(&self) -> u8 {
         match self {
+            Self::Um0624 => 3,
+            Self::Um0832 => 4,
+            Self::Um1040 => 5,
+            Self::Um1248 => 6,
             Self::Um1456 => 7,
             Self::Um1664 => 8,
             Self::Um1872 => 9,
@@ -42,6 +54,10 @@ impl TravelDistance {
     pub(super) fn from_bin(input: u8) -> Result<Self> {
         match input {
             0 => Ok(Self::Um2560Point48),
+            3 => Ok(Self::Um0624),
+            4 => Ok(Self::Um0832),
+            5 => Ok(Self::Um1040),
+            6 => Ok(Self::Um1248),
             7 => Ok(Self::Um1456),
             8 => Ok(Self::Um1664),
             9 => Ok(Self::Um1872),

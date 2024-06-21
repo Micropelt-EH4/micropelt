@@ -12,6 +12,7 @@ fn uplink_partial_eq() {
         flow_temperature: 41.5,
         ambient_raw_value: 22.25,
         ambient_temperature: 20.0,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.76,
@@ -43,13 +44,50 @@ fn uplink_partial_eq() {
 }
 
 #[test]
-fn deserialise_00_rev_2_4() {
+fn deserialise_rev_2_a() {
+    let expected_output = Uplink {
+        valve_position: 22,
+        flow_raw_value: 44.0,
+        flow_temperature: 43.0,
+        ambient_raw_value: 30.0,
+        ambient_temperature: 20.25,
+        used_temperature: Some(20.75),
+        flow_sensor_error: false,
+        ambient_sensor_error: false,
+        battery_v: 2.62,
+        battery_low: false,
+        battery_high: false,
+        average_current_consumed: 210,
+        average_current_generated: 540,
+        harvesting: true,
+        temperature_drop_detected: false,
+        motor_error: false,
+        radio_communication_error: false,
+        radio_signal_strength_low: false,
+        zero_drift: false,
+        reference_run_complete: true,
+        operating_condition_off: false,
+        device_value: Some(DeviceValue::User(SetValue::AmbientTemperature(19.5))),
+    };
+
+    assert_eq!(
+        expected_output,
+        Uplink::deserialise(&vec![
+            22, 88, 86, 120, 81, 0b00100000, 131, 21, 54, 0b00010010, 39, 83
+        ])
+        .unwrap()
+    )
+}
+
+#[test]
+fn deserialise_rev_2_4() {
     let expected_output = Uplink {
         valve_position: 0,
         flow_raw_value: 35.5,
         flow_temperature: 41.0,
         ambient_raw_value: 13.75,
         ambient_temperature: 15.25,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.74,
@@ -78,13 +116,14 @@ fn deserialise_00_rev_2_4() {
 }
 
 #[test]
-fn deserialise_01_rev_2_0() {
+fn deserialise_rev_2_0() {
     let expected_output = Uplink {
         valve_position: 0,
         flow_raw_value: 39.0,
         flow_temperature: 42.0,
         ambient_raw_value: 22.25,
         ambient_temperature: 17.25,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.4,
@@ -115,13 +154,14 @@ fn deserialise_01_rev_2_0() {
 }
 
 #[test]
-fn deserialise_02_rev_1_1() {
+fn deserialise_rev_1_1_no_00() {
     let expected_output = Uplink {
         valve_position: 71,
         flow_raw_value: 12.5,
         flow_temperature: 13.5,
         ambient_raw_value: 15.0,
         ambient_temperature: 15.0,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.34,
@@ -152,13 +192,14 @@ fn deserialise_02_rev_1_1() {
 }
 
 #[test]
-fn deserialise_03_rev_1_1() {
+fn deserialise_rev_1_1_no_01() {
     let expected_output = Uplink {
         valve_position: 58,
         flow_raw_value: 101.0,
         flow_temperature: 106.0,
         ambient_raw_value: 60.75,
         ambient_temperature: 40.25,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.78,
@@ -189,13 +230,14 @@ fn deserialise_03_rev_1_1() {
 }
 
 #[test]
-fn deserialise_04_rev_1_0() {
+fn deserialise_rev_1_0_no_00() {
     let expected_output = Uplink {
         valve_position: 22,
         flow_raw_value: 49.5,
         flow_temperature: 53.5,
         ambient_raw_value: 29.25,
         ambient_temperature: 19.0,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.58,
@@ -221,13 +263,14 @@ fn deserialise_04_rev_1_0() {
 }
 
 #[test]
-fn deserialise_05_rev_1_0() {
+fn deserialise_rev_1_0_no_01() {
     let expected_output = Uplink {
         valve_position: 33,
         flow_raw_value: 28.5,
         flow_temperature: 31.5,
         ambient_raw_value: 29.5,
         ambient_temperature: 26.5,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.4,
@@ -258,13 +301,14 @@ fn deserialise_05_rev_1_0() {
 }
 
 #[test]
-fn deserialise_06_rev_1_0() {
+fn deserialise_rev_1_0_no_02() {
     let expected_output = Uplink {
         valve_position: 19,
         flow_raw_value: 47.5,
         flow_temperature: 50.5,
         ambient_raw_value: 36.5,
         ambient_temperature: 26.25,
+        used_temperature: None,
         flow_sensor_error: false,
         ambient_sensor_error: false,
         battery_v: 2.74,
@@ -302,6 +346,7 @@ fn deserialise_something_afoot() {
         flow_temperature: 3.0,
         ambient_raw_value: 0.0,
         ambient_temperature: 0.0,
+        used_temperature: None,
         flow_sensor_error: true,
         ambient_sensor_error: true,
         battery_v: 2.12,

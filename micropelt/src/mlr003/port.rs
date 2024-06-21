@@ -5,9 +5,11 @@ pub enum Port {
     DataRate = 4,
     SlowHarvest = 5,
     TemperatureDrop = 6,
-    Pi = 7,
+    Pid = 7,
     TemperatureEstimate = 8,
     ExternalSensor = 9,
+    ExternalTemperature = 10,
+    Beep = 0x0b,
     OnOff = 0x0f,
     MotorConfig = 16,
 }

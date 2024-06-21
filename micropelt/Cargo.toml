@@ -1,6 +1,6 @@
 [package]
 name = "micropelt"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Micropelt device communication definitions"
 readme = "readme.md"

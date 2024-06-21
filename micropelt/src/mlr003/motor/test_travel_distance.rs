@@ -33,9 +33,10 @@ fn to_and_fro() {
 }
 
 #[test]
-fn from_bin_is_err() {
+fn range() {
     assert!(TravelDistance::from_bin(1).is_err());
-    assert!(TravelDistance::from_bin(6).is_err());
+    assert!(TravelDistance::from_bin(2).is_err());
+    assert!(TravelDistance::from_bin(3).is_ok());
     assert!(TravelDistance::from_bin(13).is_err());
     assert!(TravelDistance::from_bin(130).is_err());
 }

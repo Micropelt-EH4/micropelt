@@ -11,6 +11,7 @@ use super::device_value::DeviceValue;
 
 const UPLINK_N_BYTES_REV_1_0: usize = 10;
 const UPLINK_N_BYTES_REV_1_1: usize = 11;
+const UPLINK_N_BYTES_REV_2_A: usize = 12;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Uplink {
@@ -22,6 +23,8 @@ pub struct Uplink {
     ambient_raw_value: f32,
     #[partial_close(resolution = 0.25)]
     ambient_temperature: f32,
+    #[partial_close(resolution = 0.25)]
+    used_temperature: Option<f32>,
     #[partial_close(resolution = 0.02)]
     battery_v: f32,
     average_current_consumed: u16,
@@ -50,14 +53,15 @@ impl PartialEq for Uplink {
 
 impl Uplink {
     pub(crate) fn deserialise(input: &[u8]) -> Result<Self> {
-        let device_value = match input.len() {
-            UPLINK_N_BYTES_REV_1_0 => None,
-            UPLINK_N_BYTES_REV_1_1 => Some(DeviceValue::from_bin(input[9] & 0b111, input[10])?),
+        let (device_value, used_temperature) = match input.len() {
+            UPLINK_N_BYTES_REV_1_0 => (None, None),
+            UPLINK_N_BYTES_REV_1_1 => (Some(DeviceValue::from_bin(input[9] & 0b111, input[10])?), None),
+            UPLINK_N_BYTES_REV_2_A => (Some(DeviceValue::from_bin(input[9] & 0b111, input[10])?), Some(bin_to_float_point_two_five(input[11]))),
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidInput,
                     format!(
-                        "Payload length should be {UPLINK_N_BYTES_REV_1_0} or {UPLINK_N_BYTES_REV_1_1}, \
+                        "Payload length should be {UPLINK_N_BYTES_REV_1_0} or {UPLINK_N_BYTES_REV_1_1} or {UPLINK_N_BYTES_REV_2_A}, \
                     got {input:?} which is of length {}", input.len()
                     ),
                 ))
@@ -86,6 +90,7 @@ impl Uplink {
             zero_drift: bin_to_bool((input[9] >> 5) & 1)?,
             reference_run_complete: bin_to_bool((input[9] >> 4) & 1)?,
             device_value,
+            used_temperature,
         })
     }
 
@@ -171,6 +176,10 @@ impl Uplink {
 
     pub fn device_value(&self) -> Option<&DeviceValue> {
         self.device_value.as_ref()
+    }
+
+    pub fn used_temperature(&self) -> Option<f32> {
+        self.used_temperature
     }
 }
 

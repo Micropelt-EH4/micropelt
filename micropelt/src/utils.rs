@@ -47,6 +47,10 @@ pub fn bin_to_float_point_two_five(input: u8) -> f32 {
     input as f32 * 0.25
 }
 
+pub fn bin_to_float_point_two(input: u8) -> f32 {
+    input as f32 * 0.2
+}
+
 pub fn bin_to_float_point_one(input: u8) -> f32 {
     input as f32 * 0.1
 }
@@ -77,6 +81,12 @@ pub fn bool_to_bin(input: bool) -> u8 {
     }
 }
 
+pub fn bin_to_percent(input: u8) -> Result<u8> {
+    check_range(0.0, input as f32, 100.0, 1.0)?;
+
+    Ok(input)
+}
+
 pub fn percent_to_bin(input: u8) -> Result<u8> {
     check_range(0.0, input as f32, 100.0, 1.0)?;
 
@@ -91,6 +101,12 @@ pub fn float_point_five_to_bin(input: f32, upper: f32) -> Result<u8> {
 
 pub fn float_point_two_five_to_bin(input: f32) -> u8 {
     (input * 4.0) as u8
+}
+
+pub fn float_point_two_to_bin(input: f32) -> Result<u8> {
+    check_range(0.0, input, 51.0, 0.2)?;
+
+    Ok((input * 5.0) as u8)
 }
 
 pub fn float_point_one_to_bin(input: f32) -> Result<u8> {

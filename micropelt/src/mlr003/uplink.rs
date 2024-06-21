@@ -4,7 +4,7 @@ use crate::{lorawan, PortPayload};
 
 use super::port::Port;
 use super::{
-    data_rate, external_sensor, motor, motor_config, on_off, operate, pi, slow_harvest,
+    data_rate, external_sensor, motor, motor_config, on_off, operate, pid, slow_harvest,
     temperature_drop, temperature_estimate, version,
 };
 
@@ -16,7 +16,7 @@ pub enum Uplink {
     Motor(motor::Uplink),
     SlowHarvest(slow_harvest::Uplink),
     TemperatureDrop(temperature_drop::Uplink),
-    Pi(pi::Uplink),
+    Pid(pid::Uplink),
     TemperatureEstimate(temperature_estimate::Uplink),
     ExternalSensor(external_sensor::Uplink),
     OnOff(on_off::Uplink),
@@ -43,8 +43,8 @@ impl lorawan::Uplink for Uplink {
             Ok(Self::TemperatureDrop(
                 temperature_drop::Uplink::deserialise(&input.payload)?,
             ))
-        } else if input.port == Port::Pi as u8 {
-            Ok(Self::Pi(pi::Uplink::deserialise(&input.payload)?))
+        } else if input.port == Port::Pid as u8 {
+            Ok(Self::Pid(pid::Uplink::deserialise(&input.payload)?))
         } else if input.port == Port::TemperatureEstimate as u8 {
             Ok(Self::TemperatureEstimate(
                 temperature_estimate::Uplink::deserialise(&input.payload)?,

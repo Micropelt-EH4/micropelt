@@ -10,9 +10,7 @@ use crate::{lorawan, PortPayload};
 
 use super::super::port::Port;
 
-use super::IntegralUnwind;
-
-const DOWNLINK_N_BYTES: usize = 6;
+const DOWNLINK_N_BYTES: usize = 7;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Downlink {
@@ -22,10 +20,10 @@ pub struct Downlink {
     pub k_i: f32,
     #[partial_close(resolution = 0.2)]
     pub k_d: f32,
-    pub integral_unwind: IntegralUnwind,
     pub closed_percent: u8,
     #[partial_close(resolution = 0.2)]
     pub k_d_when_closed: f32,
+    pub offset_percent: u8,
 }
 
 impl fmt::Display for Downlink {
@@ -35,15 +33,15 @@ impl fmt::Display for Downlink {
             "K P {:.1}\n\
         K I {:.2}\n\
         K D {:.1}\n\
-        Integral Unwind: {}\n\
         Close to {}%\n\
-        When Closed, K D {:.1}",
+        When Closed, K D {:.1}\n\
+        Offset to {}%",
             self.k_p,
             self.k_i,
             self.k_d,
-            self.integral_unwind,
             self.closed_percent,
-            self.k_d_when_closed
+            self.k_d_when_closed,
+            self.offset_percent,
         )
     }
 }
@@ -60,9 +58,9 @@ impl Downlink {
             k_p: 2.4,
             k_i: 0.06,
             k_d: 22.2,
-            integral_unwind: IntegralUnwind::Zero,
             closed_percent: 0,
             k_d_when_closed: 0.0,
+            offset_percent: 0,
         }
     }
 
@@ -71,9 +69,9 @@ impl Downlink {
             k_p: 4.0,
             k_i: 0.0,
             k_d: 0.0,
-            integral_unwind: IntegralUnwind::Zero,
             closed_percent: 0,
             k_d_when_closed: 0.0,
+            offset_percent: 0,
         }
     }
 }
@@ -85,9 +83,10 @@ impl lorawan::Downlink for Downlink {
         payload[0] = float_point_one_to_bin(self.k_p)?;
         payload[1] = float_point_zero_two_to_bin(self.k_i)?;
         payload[2] = float_point_two_to_bin(self.k_d)?;
-        payload[3] = self.integral_unwind.to_bin();
+        payload[3] = 0b1000_0000;
         payload[4] = percent_to_bin(self.closed_percent)?;
         payload[5] = float_point_two_to_bin(self.k_d_when_closed)?;
+        payload[6] = percent_to_bin(self.offset_percent)?;
 
         Ok(PortPayload {
             port: Port::Pid as u8,

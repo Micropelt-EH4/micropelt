@@ -55,9 +55,9 @@ impl PartialEq for Downlink {
 impl Downlink {
     pub fn default_radiator() -> Self {
         Self {
-            k_p: 2.4,
-            k_i: 0.06,
-            k_d: 22.2,
+            k_p: 20.0,
+            k_i: 1.5,
+            k_d: 0.0,
             closed_percent: 0,
             k_d_when_closed: 0.0,
             offset_percent: 0,

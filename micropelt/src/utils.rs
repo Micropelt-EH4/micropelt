@@ -112,7 +112,7 @@ pub fn float_point_two_to_bin(input: f32) -> Result<u8> {
 pub fn float_point_one_to_bin(input: f32) -> Result<u8> {
     check_range(0.0, input, 25.5, 0.1)?;
 
-    Ok(input as u8)
+    Ok((input * 10.0) as u8)
 }
 
 pub fn float_point_zero_two_to_bin(input: f32) -> Result<u8> {

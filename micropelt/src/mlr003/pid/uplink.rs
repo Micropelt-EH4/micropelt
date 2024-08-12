@@ -4,7 +4,9 @@ use micropelt_derive::PartialClose;
 
 use crate::utils::{
     bin_to_float_point_two, bin_to_float_point_zero, bin_to_float_point_zero_two, bin_to_percent,
+    check_payload_length,
 };
+const UPLINK_N_BYTES: usize = 7;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Uplink {
@@ -28,6 +30,8 @@ impl PartialEq for Uplink {
 
 impl Uplink {
     pub(crate) fn deserialise(input: &[u8]) -> Result<Self> {
+        check_payload_length(input, UPLINK_N_BYTES)?;
+
         let uplink = Self {
             k_p: bin_to_float_point_zero(input[0]),
             k_i: bin_to_float_point_zero_two(input[1]),

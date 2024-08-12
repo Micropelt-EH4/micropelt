@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn deserialise_rev_2_b() {
     let expected_output = Uplink {
-        k_p: 1.2,
+        k_p: 1.0,
         k_i: 2.34,
         k_d: 4.6,
         closed_percent: 6,
@@ -14,6 +14,6 @@ fn deserialise_rev_2_b() {
     const IGNORED: u8 = 1;
     assert_eq!(
         expected_output,
-        Uplink::deserialise(&[12, 117, 23, IGNORED, 6, 20, 0]).unwrap()
+        Uplink::deserialise(&[1, 117, 23, IGNORED, 6, 20, 0]).unwrap()
     );
 }

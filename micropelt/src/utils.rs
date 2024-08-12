@@ -51,8 +51,12 @@ pub fn bin_to_float_point_two(input: u8) -> f32 {
     input as f32 * 0.2
 }
 
-pub fn bin_to_float_point_one(input: u8) -> f32 {
+pub fn _bin_to_float_point_one(input: u8) -> f32 {
     input as f32 * 0.1
+}
+
+pub fn bin_to_float_point_zero(input: u8) -> f32 {
+    input as f32
 }
 
 pub fn bin_to_float_point_zero_two(input: u8) -> f32 {
@@ -109,10 +113,16 @@ pub fn float_point_two_to_bin(input: f32) -> Result<u8> {
     Ok((input * 5.0) as u8)
 }
 
-pub fn float_point_one_to_bin(input: f32) -> Result<u8> {
+pub fn _float_point_one_to_bin(input: f32) -> Result<u8> {
     check_range(0.0, input, 25.5, 0.1)?;
 
     Ok((input * 10.0) as u8)
+}
+
+pub fn float_point_zero_to_bin(input: f32) -> Result<u8> {
+    check_range(0.0, input, 25.5, 0.0)?;
+
+    Ok(input as u8)
 }
 
 pub fn float_point_zero_two_to_bin(input: f32) -> Result<u8> {
@@ -125,4 +135,18 @@ pub fn float_point_zero_one_to_bin(input: f32) -> Result<u8> {
     check_range(0.0, input, 2.55, 0.01)?;
 
     Ok((input * 100.0) as u8)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{bin_to_float_point_zero, float_point_zero_to_bin};
+
+    #[test]
+    fn test_f32_ser_de() {
+        let number = 25.1f32;
+        let ser_number = float_point_zero_to_bin(number).unwrap();
+        let de_number = bin_to_float_point_zero(ser_number);
+        // we no longer care about decimals in the P value
+        assert_eq!(25.0, de_number);
+    }
 }

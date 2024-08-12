@@ -4,7 +4,7 @@ use std::io::Result;
 use micropelt_derive::PartialClose;
 
 use crate::utils::{
-    float_point_one_to_bin, float_point_two_to_bin, float_point_zero_two_to_bin, percent_to_bin,
+    float_point_two_to_bin, float_point_zero_to_bin, float_point_zero_two_to_bin, percent_to_bin,
 };
 use crate::{lorawan, PortPayload};
 
@@ -80,7 +80,7 @@ impl lorawan::Downlink for Downlink {
     fn serialise(&self) -> Result<PortPayload> {
         let mut payload = vec![0; DOWNLINK_N_BYTES];
 
-        payload[0] = float_point_one_to_bin(self.k_p)?;
+        payload[0] = float_point_zero_to_bin(self.k_p)?;
         payload[1] = float_point_zero_two_to_bin(self.k_i)?;
         payload[2] = float_point_two_to_bin(self.k_d)?;
         payload[3] = 0b1000_0000;

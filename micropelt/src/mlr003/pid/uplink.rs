@@ -3,7 +3,7 @@ use std::io::Result;
 use micropelt_derive::PartialClose;
 
 use crate::utils::{
-    bin_to_float_point_one, bin_to_float_point_two, bin_to_float_point_zero_two, bin_to_percent,
+    bin_to_float_point_two, bin_to_float_point_zero, bin_to_float_point_zero_two, bin_to_percent,
 };
 
 #[derive(Clone, Debug, PartialClose)]
@@ -29,7 +29,7 @@ impl PartialEq for Uplink {
 impl Uplink {
     pub(crate) fn deserialise(input: &[u8]) -> Result<Self> {
         let uplink = Self {
-            k_p: bin_to_float_point_one(input[0]),
+            k_p: bin_to_float_point_zero(input[0]),
             k_i: bin_to_float_point_zero_two(input[1]),
             k_d: bin_to_float_point_two(input[2]),
             closed_percent: bin_to_percent(input[4])?,

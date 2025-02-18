@@ -5,7 +5,7 @@ use crate::lorawan::Downlink as _;
 #[test]
 fn serialise_kp_3_6_ki_0_40() {
     let downlink = Downlink {
-        k_p: 3.6,
+        k_p: 3,
         k_i: 0.40,
         k_d: 0.0,
         closed_percent: 0,
@@ -19,7 +19,7 @@ fn serialise_kp_3_6_ki_0_40() {
 #[test]
 fn serialise_kp_4_0_ki_0_00() {
     let downlink = Downlink {
-        k_p: 4.0,
+        k_p: 4,
         k_i: 0.00,
         k_d: 0.0,
         closed_percent: 0,
@@ -33,7 +33,7 @@ fn serialise_kp_4_0_ki_0_00() {
 #[test]
 fn serialise_kp_7_5_ki_4_12() {
     let downlink = Downlink {
-        k_p: 7.5,
+        k_p: 7,
         k_i: 4.12,
         k_d: 0.0,
         closed_percent: 0,

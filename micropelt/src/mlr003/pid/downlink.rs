@@ -4,7 +4,7 @@ use std::io::Result;
 use micropelt_derive::PartialClose;
 
 use crate::utils::{
-    float_point_two_to_bin, float_point_zero_to_bin, float_point_zero_two_to_bin, percent_to_bin,
+    float_point_two_to_bin, float_point_zero_two_to_bin, percent_to_bin, p_max_to_bin
 };
 use crate::{lorawan, PortPayload};
 
@@ -14,8 +14,7 @@ const DOWNLINK_N_BYTES: usize = 7;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Downlink {
-    #[partial_close(resolution = 0.1)]
-    pub k_p: f32,
+    pub k_p: u8,
     #[partial_close(resolution = 0.02)]
     pub k_i: f32,
     #[partial_close(resolution = 0.2)]
@@ -55,7 +54,7 @@ impl PartialEq for Downlink {
 impl Downlink {
     pub fn default_radiator() -> Self {
         Self {
-            k_p: 20.0,
+            k_p: 20,
             k_i: 1.5,
             k_d: 0.0,
             closed_percent: 0,
@@ -66,7 +65,7 @@ impl Downlink {
 
     pub fn default_domestic_hot_water() -> Self {
         Self {
-            k_p: 4.0,
+            k_p: 4,
             k_i: 0.0,
             k_d: 0.0,
             closed_percent: 0,
@@ -80,7 +79,7 @@ impl lorawan::Downlink for Downlink {
     fn serialise(&self) -> Result<PortPayload> {
         let mut payload = vec![0; DOWNLINK_N_BYTES];
 
-        payload[0] = float_point_zero_to_bin(self.k_p)?;
+        payload[0] = p_max_to_bin(self.k_p)?;
         payload[1] = float_point_zero_two_to_bin(self.k_i)?;
         payload[2] = float_point_two_to_bin(self.k_d)?;
         payload[3] = 0b1000_0000;

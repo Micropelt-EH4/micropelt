@@ -119,10 +119,10 @@ pub fn _float_point_one_to_bin(input: f32) -> Result<u8> {
     Ok((input * 10.0) as u8)
 }
 
-pub fn float_point_zero_to_bin(input: f32) -> Result<u8> {
-    check_range(0.0, input, 25.5, 0.0)?;
+pub fn p_max_to_bin(input: u8) -> Result<u8> {
+    check_range(0.0, input as f32, 255.0, 1.0)?;
 
-    Ok(input as u8)
+    Ok(input)
 }
 
 pub fn float_point_zero_two_to_bin(input: f32) -> Result<u8> {
@@ -139,12 +139,12 @@ pub fn float_point_zero_one_to_bin(input: f32) -> Result<u8> {
 
 #[cfg(test)]
 mod tests {
-    use super::{bin_to_float_point_zero, float_point_zero_to_bin};
+    use super::{bin_to_float_point_zero, p_max_to_bin};
 
     #[test]
     fn test_f32_ser_de() {
-        let number = 25.1f32;
-        let ser_number = float_point_zero_to_bin(number).unwrap();
+        let number = 25;
+        let ser_number = p_max_to_bin(number).unwrap();
         let de_number = bin_to_float_point_zero(ser_number);
         // we no longer care about decimals in the P value
         assert_eq!(25.0, de_number);

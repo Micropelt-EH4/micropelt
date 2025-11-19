@@ -20,6 +20,7 @@ pub enum DeviceValue {
     #[partial_close(resolution = 0.25)]
     SlowHarvesting(f32),
     TemperatureDropDetected,
+    ValvePositionInverse(u8),
 }
 
 #[derive(Clone, Debug, PartialClose)]
@@ -29,6 +30,7 @@ pub enum SetValue {
     FlowTemperature(f32),
     #[partial_close(resolution = 0.5)]
     AmbientTemperature(f32),
+    InverseValvePositionMode(u8),
 }
 
 impl fmt::Display for DeviceValue {
@@ -47,6 +49,7 @@ impl fmt::Display for DeviceValue {
                 write!(f, "Slow Harvesting (maximum flow temperature {value}°C)")
             }
             Self::TemperatureDropDetected => write!(f, "Temperature Drop Detected"),
+            Self::ValvePositionInverse(value) => write!(f, "Inverse Valve Position {value}%")
         }
     }
 }
@@ -55,6 +58,7 @@ impl fmt::Display for SetValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::ValvePosition(value) => write!(f, "Valve Position {value}%"),
+            Self::InverseValvePositionMode(value) => write!(f, "Inverse Valve Position {value}%"),
             Self::FlowTemperature(value) => {
                 write!(f, "Flow Temperature {value}°C")
             }
@@ -94,6 +98,7 @@ impl DeviceValue {
             5 => Ok(Self::TemperatureDropDetected),
             6 => Ok(Self::FreezeProtect(value)),
             7 => Ok(Self::ForcedHeating(value)),
+            8 => Ok(Self::ValvePositionInverse(value)),
             _ => Err(Error::new(
                 ErrorKind::InvalidInput,
                 format!("Unexpected set mode: {mode} (set value {value})"),
@@ -114,6 +119,7 @@ impl SetValue {
     pub(super) fn value_to_bin(&self) -> Result<u8> {
         match self {
             SetValue::ValvePosition(value) => Ok(percent_to_bin(*value)?),
+            SetValue::InverseValvePositionMode(value) => Ok(percent_to_bin(*value)?),
             SetValue::FlowTemperature(value) => Ok(float_point_five_to_bin(*value, 80.0)?),
             SetValue::AmbientTemperature(value) => Ok(float_point_five_to_bin(*value, 40.0)?),
         }
@@ -124,6 +130,7 @@ impl SetValue {
             SetValue::ValvePosition(_) => 0,
             SetValue::FlowTemperature(_) => 1,
             SetValue::AmbientTemperature(_) => 2,
+            SetValue::InverseValvePositionMode(_) => 3,
         }
     }
 
@@ -132,6 +139,7 @@ impl SetValue {
             SetValue::AmbientTemperature(_) => 0,
             SetValue::FlowTemperature(_) => 1,
             SetValue::ValvePosition(_) => 2,
+            SetValue::InverseValvePositionMode(_) => 3,
         }
     }
 }

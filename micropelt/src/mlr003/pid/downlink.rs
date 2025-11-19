@@ -23,6 +23,7 @@ pub struct Downlink {
     #[partial_close(resolution = 0.2)]
     pub k_d_when_closed: f32,
     pub offset_percent: u8,
+    pub pid_inverse: bool,
 }
 
 impl fmt::Display for Downlink {
@@ -34,13 +35,15 @@ impl fmt::Display for Downlink {
         K D {:.1}\n\
         Close to {}%\n\
         When Closed, K D {:.1}\n\
-        Offset to {}%",
+        Offset to {}%\n\
+        Inverse PID {}",
             self.k_p,
             self.k_i,
             self.k_d,
             self.closed_percent,
             self.k_d_when_closed,
             self.offset_percent,
+            self.pid_inverse,
         )
     }
 }
@@ -57,9 +60,10 @@ impl Downlink {
             k_p: 20,
             k_i: 1.5,
             k_d: 0.0,
-            closed_percent: 0,
+            closed_percent: 100,
             k_d_when_closed: 0.0,
             offset_percent: 0,
+            pid_inverse: true,
         }
     }
 
@@ -71,6 +75,7 @@ impl Downlink {
             closed_percent: 0,
             k_d_when_closed: 0.0,
             offset_percent: 0,
+            pid_inverse: false,
         }
     }
 }
@@ -82,7 +87,7 @@ impl lorawan::Downlink for Downlink {
         payload[0] = p_max_to_bin(self.k_p)?;
         payload[1] = float_point_zero_two_to_bin(self.k_i)?;
         payload[2] = float_point_two_to_bin(self.k_d)?;
-        payload[3] = 0b1000_0000;
+        payload[3] = if self.pid_inverse == true {128} else {192};
         payload[4] = percent_to_bin(self.closed_percent)?;
         payload[5] = float_point_two_to_bin(self.k_d_when_closed)?;
         payload[6] = percent_to_bin(self.offset_percent)?;

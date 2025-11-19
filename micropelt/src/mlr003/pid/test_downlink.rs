@@ -11,6 +11,7 @@ fn serialise_kp_3_ki_0_40() {
         closed_percent: 0,
         k_d_when_closed: 0.0,
         offset_percent: 0,
+        pid_inverse: true,
     };
     let bytes = downlink.serialise().unwrap().payload;
     assert_eq!(vec![3, 20, 0, 128, 0, 0, 0], bytes);
@@ -25,9 +26,10 @@ fn serialise_kp_4_ki_0_00() {
         closed_percent: 0,
         k_d_when_closed: 0.0,
         offset_percent: 0,
+        pid_inverse: false,
     };
     let bytes = downlink.serialise().unwrap().payload;
-    assert_eq!(vec![4, 0, 0, 128, 0, 0, 0], bytes);
+    assert_eq!(vec![4, 0, 0, 192, 0, 0, 0], bytes);
 }
 
 #[test]
@@ -39,6 +41,7 @@ fn serialise_kp_255_ki_4_12() {
         closed_percent: 0,
         k_d_when_closed: 0.0,
         offset_percent: 0,
+        pid_inverse: true,
     };
     let bytes = downlink.serialise().unwrap().payload;
     assert_eq!(vec![255, 206, 0, 128, 0, 0, 0], bytes);

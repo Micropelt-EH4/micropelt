@@ -20,6 +20,7 @@ pub struct Uplink {
     #[partial_close(resolution = 0.2)]
     k_d_when_closed: f32,
     offset_percent: u8,
+    pid_inverse: bool,
 }
 
 impl PartialEq for Uplink {
@@ -36,6 +37,7 @@ impl Uplink {
             k_p: bin_to_float_point_zero(input[0]),
             k_i: bin_to_float_point_zero_two(input[1]),
             k_d: bin_to_float_point_two(input[2]),
+            pid_inverse: if((input[3] >> 6) & 0x01) == 0 {true} else {false},
             closed_percent: bin_to_percent(input[4])?,
             k_d_when_closed: bin_to_float_point_two(input[5]),
             offset_percent: bin_to_percent(input[6])?,
@@ -54,6 +56,10 @@ impl Uplink {
 
     pub fn k_d(&self) -> f32 {
         self.k_d
+    }
+
+    pub fn pid_inverse(&self) -> bool {
+        self.pid_inverse
     }
 
     pub fn closed_percent(&self) -> u8 {

@@ -56,7 +56,7 @@ impl Uplink {
         let (device_value, used_temperature) = match input.len() {
             UPLINK_N_BYTES_REV_1_0 => (None, None),
             UPLINK_N_BYTES_REV_1_1 => (Some(DeviceValue::from_bin(input[9] & 0b111, input[10])?), None),
-            UPLINK_N_BYTES_REV_2_A => (Some(DeviceValue::from_bin(input[9] & 0b111, input[10])?), Some(bin_to_float_point_two_five(input[11]))),
+            UPLINK_N_BYTES_REV_2_A => (Some(DeviceValue::from_bin(input[9] & 0b1111, input[10])?), Some(bin_to_float_point_two_five(input[11]))),
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidInput,

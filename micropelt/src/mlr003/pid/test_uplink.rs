@@ -9,11 +9,11 @@ fn deserialise_rev_2_b() {
         closed_percent: 6,
         k_d_when_closed: 4.0,
         offset_percent: 0,
+        pid_inverse: true,
     };
 
-    const IGNORED: u8 = 1;
     assert_eq!(
         expected_output,
-        Uplink::deserialise(&[1, 117, 23, IGNORED, 6, 20, 0]).unwrap()
+        Uplink::deserialise(&[1, 117, 23, 128, 6, 20, 0]).unwrap()
     );
 }

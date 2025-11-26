@@ -6,7 +6,7 @@ use crate::utils::check_payload_length;
 
 use super::common::bin_to_float_point_two_five_complement_of_two;
 
-const UPLINK_N_BYTES: usize = 1;
+const UPLINK_N_BYTES: usize = 2;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Uplink {

@@ -8,7 +8,7 @@ use crate::{lorawan, PortPayload};
 use super::super::port::Port;
 use super::common::float_point_two_five_to_bin_complement_of_two;
 
-const DOWNLINK_N_BYTES: usize = 1;
+const DOWNLINK_N_BYTES: usize = 2;
 
 #[derive(Clone, Debug, PartialClose)]
 pub struct Downlink {
@@ -20,7 +20,7 @@ impl fmt::Display for Downlink {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "Flow Temperature = Flow Raw Moving Average {:+}",
+            "New Flow Temperature = FMA {:+}",
             self.flow_offset,
         )
     }

@@ -14,14 +14,14 @@ fn serialise_status() {
 fn serialise_offset_minus_7() {
     let downlink = Downlink { flow_offset: -7.0 };
 
-    assert_eq!(vec![228], downlink.serialise().unwrap().payload);
+    assert_eq!(vec![228,0], downlink.serialise().unwrap().payload);
 }
 
 #[test]
 fn serialise_offset_zero() {
     let downlink = Downlink { flow_offset: 0.0 };
 
-    assert_eq!(vec![0], downlink.serialise().unwrap().payload);
+    assert_eq!(vec![0,0], downlink.serialise().unwrap().payload);
 }
 
 #[test]

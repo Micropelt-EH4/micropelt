@@ -57,7 +57,7 @@ impl PartialEq for Downlink {
 impl Downlink {
     pub fn default_radiator() -> Self {
         Self {
-            k_p: 20,
+            k_p: 10,
             k_i: 1.5,
             k_d: 0.0,
             closed_percent: 100,
@@ -69,8 +69,8 @@ impl Downlink {
 
     pub fn default_domestic_hot_water() -> Self {
         Self {
-            k_p: 4,
-            k_i: 0.0,
+            k_p: 1,
+            k_i: 0.2,
             k_d: 0.0,
             closed_percent: 0,
             k_d_when_closed: 0.0,
